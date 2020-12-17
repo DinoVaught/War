@@ -1,0 +1,28 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"liveServer.settings.port": 5503,
+		"cSpell.words": [
+			"COORD",
+			"Divs",
+			"Elmnts",
+			"Evnts",
+			"Milisec",
+			"Vaught",
+			"cardowner",
+			"elmnt",
+			"eqeqeq",
+			"facevalue",
+			"inplay",
+			"milli",
+			"resizeloc",
+			"shuf",
+			"yello",
+			"zztop"
+		]
+	}
+}

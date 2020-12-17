@@ -1,0 +1,13 @@
+{
+    "editor.cursorStyle": "line-thin",
+    "files.exclude": {
+        "farts.txt": true,
+        "war_Robo.bat": true
+    },
+    "cSpell.words": [
+        "cardowner",
+        "elmnt",
+        "inplay",
+        "resizeloc"
+    ]
+}

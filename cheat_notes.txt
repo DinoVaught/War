@@ -1,0 +1,101 @@
+
+https://www.mythicsoft.com/agentransack/
+
+
+===Git notes ==========
+If you're in a bind (getting a repo initialized / configured) or are in a pickle 
+you can just delete the .git directory and re=initialize (git init) the folder / project
+
+'Adding' or 'staging' files to the index / repository 
+See what files will be added or (staged) to the index (dry run) the 
+( . ) periods key, wild card specifying all files, recursively.
+git add (below) can also be used to see what your .gitignore is filtering 
+- git add . --dry-run
+
+Add a (git name) for (pushing code) to github
+- git remote add wipMover 'github.com/DinoVaught/WIP_Mover'
+
+Then, to start the push to the remote 
+- git push wipMover
+
+To see existing <remote names> that git already knows about
+- git remote show
+
+
+Create tag (example below)
+git tag -a -m "v_1.0.0 This is the build just before I chopped all the automation code from this app" v_1.0.0
+
+Push Tag to server
+git push --tags https://github.com/DinoVaught/War
+
+
+view list of indexed files
+git ls-files
+
+below remove files that have been (staged) and are already indexed
+   (in vs code = terminal)
+   1:   git rm --cached bin\x86\Debug\*.dll
+
+   (get bash use 's on each end ot the path)
+   2:   git rm --cached 'bin\x86\Debug\*.dll'
+
+   remove all *.png files from the index.  
+   yse --dry-run to 'see' which files will be targeted.
+   3:   git rm *.png --cached --dry-run
+
+in git documentation => items in [] are optional, and items in <> are parameters
+
+create an SSH key 
+https://youtu.be/Z3ELWci34cM
+
+=======================
+
+
+=== settings.json ==========
+C:\Users\dinov\AppData\Roaming\Code\User\settings.json
+==============================
+
+=== inline elements (spacing)  ==========
+https://css-tricks.com/fighting-the-space-between-inline-block-elements/
+=============================
+
+====== Transition style notes==============================
+When moving or transitioning an image (for example) - the transition will not occur when, the transition will be skipped when . . . 
+Apparently the Transition style only works on properties of numeric types???
+    * The images start and stop styles have not been set.  The Transition style has to know the (start) px (left and / or top) before the transition will occur.  The transition has to know the starting point
+    * Transitions work by interpolating (from state A to state B). 
+        - If using a single javascript function, a function that sets the Transition property AND changes the property 
+          that triggers the transition, the transition will/may not occur.  
+            * To force the layout engine to ((synchronize with) or (be aware of)) the 'recently set transition style' read 
+              the element’s (.offsetHeight) property.  Apparently, by reading the elements .offsetHeight property all of the 
+              element's properties and styles are refreshed and the ?browser? is made aware of the 'newly set Transition style'
+====================================
+
+==========eslint ======================
+Node js need to be installed first 
+    https://nodejs.org/en/
+
+run command below in vs code (terminal cmd) to initialize eslint (and configure))
+   npx eslint --init
+   https://eslint.org/docs/user-guide/configuring#specifying-environments
+   
+
+run command below in vs code (terminal cmd) to force eslint to find issues
+npm run lint 
+See this script (lint) in file ==> C:\DataThisPC\HTML\WarProd\War\package.json
+
+====================================
+======================== npm ======================
+npm list --depth=0
+====================================
+==========Windows powershell ======================
+
+(run as admin)
+
+Set-ExecutionPolicy RemoteSigned
+
+Set-ExecutionPolicy Restricted
+
+https://stackoverflow.com/questions/4037939/powershell-says-execution-of-scripts-is-disabled-on-this-system
+
+====================================

@@ -1,0 +1,25 @@
+{
+  "name": "war",
+  "version": "1.0.0",
+  "description": "Description",
+  "main": "Main.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "lint": "eslint ./",
+    "test": "hello"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DinoVaught/War.git"
+  },
+  "keywords": [
+    "none"
+  ],
+  "author": "Dino Vaught",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DinoVaught/War/issues"
+  },
+  "homepage": "https://github.com/DinoVaught/War#readme"
+}
