@@ -2,6 +2,18 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "1_UI\\GamePlay"
+		},
+		{
+			"path": "2_Business\\Card"
+		},
+		{
+			"path": "2_Business\\GamePlay"
+		},
+		{
+			"path": "2_Business\\Resize"
 		}
 	],
 	"settings": {
@@ -23,6 +35,7 @@
 			"shuf",
 			"yello",
 			"zztop"
-		]
+		],
+		"liveServer.settings.multiRootWorkspaceName": "War"
 	}
 }

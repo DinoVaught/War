@@ -1,4 +1,4 @@
-
+let war = new warfare();
 let gameDeck;
 class GamePlay {
   constructor(shuffledDeck) {
@@ -10,7 +10,6 @@ class GamePlay {
     this.isWar = false;
     // intervaleId = setInterval(this.evalCardsInPlay, 2000);
   }
-
   flipDealerCard() {
     try{
       this.flipCard(OWNER_DEALER, cardIds.CardTopLeft, cardIds.CardMidLeft);
@@ -29,8 +28,6 @@ class GamePlay {
       alert(`Error occurred in GamePlay.flipDealerCard '\r\n' ${err.message}`);
     }
   }
-
-
 
   flipCard(cardOwner, fromID, toID) {
     const cardObj = gameDeck.find((cardIdx) => cardIdx.cardOwner == cardOwner && cardIdx.availForPlay == true);
@@ -51,6 +48,7 @@ class GamePlay {
     cardFlipping.setAttribute('data-resizeloc', toID);
     cardFlipping.setAttribute('data-faceValue', cardObj.faceValue);
     cardFlipping.setAttribute('data-owner', cardOwner);
+    cardFlipping.setAttribute('data-filename', cardObj.fileName);
     cardFlipping.setAttribute('data-inplay', 'yes');
 
     cardFlipping.style.position = 'absolute';
@@ -87,12 +85,14 @@ class GamePlay {
             dealerCardObj.cardOwner = imgs[i].dataset.owner;
             dealerCardObj.suit = imgs[i].id;
             dealerCardObj.faceValue = imgs[i].dataset.facevalue;
+            dealerCardObj.fileName = imgs[i].dataset.filename;
             count++;
             break;
           case OWNER_PLAYER:
             playerCardObj.cardOwner = imgs[i].dataset.owner;
             playerCardObj.suit = imgs[i].id;
             playerCardObj.faceValue = imgs[i].dataset.facevalue;
+            playerCardObj.fileName = imgs[i].dataset.filename;
             count++;
             break;
         }
@@ -102,7 +102,6 @@ class GamePlay {
     return (count == 2); // returns true or false
   }
 
-
   /**
    * This function evaluates the full set of (cards on the board), the cards that are currently (in play).
    * It assigns the winner of the current hand the point for this hand and gives winner the (prize card).
@@ -111,34 +110,17 @@ class GamePlay {
    */ 
   allocateWinnerPoints(cardDealerObj, cardPlayerObj) {
 
-    // if flow arrives here, there are two 'cards in play'
-    // they need to be evaluated and awarded to the winner
-    // clearInterval(evalBoardIntervaleId);
-
     let elmntMvr = new elementMover();
     // this.animationRunning = true;
 
-    // if (0 == 0) {
-    if (parseInt(cardDealerObj.faceValue) == parseInt(cardPlayerObj.faceValue)) {
+    if (0 == 0) {
     // if (parseInt(cardDealerObj.faceValue) == parseInt(cardPlayerObj.faceValue)) {
       // War!
-
-this.dealerScore += 1;
-elmntMvr.moveElement(cardDealerObj.suit, cardIds.CardTopRight);
-elmntMvr.moveElement(cardPlayerObj.suit, cardIds.CardTopRight);
-document.getElementById(cardDealerObj.suit).setAttribute('data-resizeloc', cardIds.CardTopRight);
-document.getElementById(cardPlayerObj.suit).setAttribute('data-resizeloc', cardIds.CardTopRight);
-document.getElementById(cardDealerObj.suit).setAttribute('data-cardowner', OWNER_DEALER);
-document.getElementById(cardPlayerObj.suit).setAttribute('data-cardowner', OWNER_DEALER);
-this.isWar = false;
-document.getElementById(cardDealerObj.suit).setAttribute('data-inplay', 'no');
-document.getElementById(cardPlayerObj.suit).setAttribute('data-inplay', 'no');
-this.handWinnerDeclared = true;
-return;
-
-
-
       this.isWar = true;
+      war = new warfare();
+      war.initializeWar(cardDealerObj.fileName, cardPlayerObj.fileName);
+
+      
     } else {
       this.isWar = false;
       
@@ -169,8 +151,3 @@ return;
   }
 
 }
-
-
-
-
-

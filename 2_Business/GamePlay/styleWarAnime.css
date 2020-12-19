@@ -1,0 +1,43 @@
+
+.warDivBox{
+    position: absolute;
+    display: inline-block;    
+    left: 400px;
+    top: 140px;
+    background-color: #f6efef;
+    border-style: double;
+    border-radius: 4%;
+}
+
+.warDivBox > img{
+    height: 150px;
+    padding-top: 5px;
+    padding-bottom: 2px;
+    opacity: 0.70;
+}
+
+.warImgLeft{
+    padding-right: 2.5px;
+    padding-left: 5px;
+}
+
+.warImgRight{
+    padding-left: 2.5px;
+    padding-right: 5px;
+}
+
+.warTextCentered {
+    position: absolute;
+    font-weight: 900;
+    font-size: 400%;
+    color: #cf1313;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: color-change .5s;
+  }
+
+  @keyframes color-change {
+    60% { color: rgb(255, 0, 0); }
+    100% { color: rgba(247, 211, 7, 0.925); }
+  }

@@ -27,20 +27,13 @@ const cardIds = ({'CardTopLeft': 'DealerLeft',
    }
 
   function getCardOwner(index) {
-
-  return (index%2==0)?OWNER_DEALER:OWNER_PLAYER;
-  //   if (index % 2 == 0){    // index is an even number
-  //     return(OWNER_DEALER);
-  //   }else{
-  //     return(OWNER_PLAYER); // index is an odd number
-  //   }
-
+    return (index%2==0)?OWNER_DEALER:OWNER_PLAYER;
   }
 
 
 function cardsOutOfBox() {
   const cards = [];
-  // const shufNum = -1;
+  // const shuffleNum = -1;
 
   cards.push(new Card(2, 'Two of Clubs', '2C'));
   cards.push(new Card(2, 'Two of Diamonds', '2D'));

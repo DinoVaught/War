@@ -1,7 +1,7 @@
 body {
   /*background-color: PapayaWhip;*/
   /*background-color: OldLace;*/
-  background-color: #363535; 
+  background-color: #a59999;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -25,7 +25,7 @@ body {
  .userMsgs{
   display: inline-block;
   vertical-align: top;
-  background-color: #64d647e6;
+  background-color: #ce3126e6;
   border: solid;
   border-color: rgb(34, 22, 22);
   border-width: 1px;
