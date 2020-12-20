@@ -5,14 +5,11 @@ cardsOOB = cardsOutOfBox();
 shuffledCards = shuffleCards(cardsOOB);
 cardsOOB.length = 0;
 let gameObj; //  = new GamePlay(shuffledCards);
-let evalCardsId = 0;
-let evalFlipDealerId = 0;
 let flipNextDealerCard = false;
-// let transEvnts = new TransitionEndTracker();
-const timerInterval = 1000;
+const timerDelay = 1200;
 let playerCardEnabled = true;
 
-function formatPageForLoad() {
+function pageLoad() {
   document.getElementsByTagName('img')[0].id = cardIds.CardTopLeft;
   document.getElementsByTagName('img')[1].id = cardIds.CardTopRight;
   document.getElementsByTagName('img')[2].id = cardIds.CardMidLeft;
@@ -41,21 +38,8 @@ function dealCards() {
 
 }
 
-function flipPlayerCard() {
 
-  if (playerCardEnabled == false) {return;}
-  playerCardEnabled = false
-  if (gameObj.handWinnerDeclared == false) {return;}
-  // 1 - 2 = player card  transed to pot
-  // 3 - 6 = pot cards    transed to winner
-  // 7 - 8 = dealer card  transed to pot
-  evalCardsId = setInterval(evalCardsInPlay, timerInterval);
-  gameObj.handWinnerDeclared = false;
-  gameObj.flipPlayerCard();
-
-}
-
-function formatPageForResize() {
+function browserResized() {
   const resize = new elementMover;
 
   for (i = 0; i < shuffledCards.length; i += 1) {
@@ -85,40 +69,56 @@ function formatPageForResize() {
   }
 }
 
+
+function flipPlayerCard() {
+
+  if (playerCardEnabled == false) {return;}
+  playerCardEnabled = false
+  if (gameObj.handWinnerDeclared == false) {return;}
+  // 1 - 2 = player card  transed to pot
+  // 3 - 6 = pot cards    transed to winner
+  // 7 - 8 = dealer card  transed to pot
+  gameObj.handWinnerDeclared = false;
+  gameObj.flipPlayerCard();
+
+  setTimeout(flipPlayerCardDelayed, timerDelay); // this gives the animation (in flipPlayerCard) time to complete
+
+}
+
     /**
     * This function / timer is invoked by setInterval.
     * It determines the current status of (game play). 
     * . . . It checks to see if 'two cards' or a 'full set' of ('in play' or 'face up') cards exist on the board.
     * if a 'full set' of cards exists, that 'set' of cards is processed or evaluated and the winner is awarded the point.
     */ 
-function evalCardsInPlay(){
+function flipPlayerCardDelayed(){
 
-  let cardDealer = new Card(0, '', '');
-  let cardPlayer = new Card(0, '', '');
+  console.log('flipPlayerCardDelayed');
 
-  if (gameObj.fullSetCardsOnBoard(cardDealer, cardPlayer) == true) {
-
-    clearInterval(evalCardsId); // stop this function's interval / timer
-    gameObj.allocateWinnerPoints(cardDealer, cardPlayer);
-
-    if (gameObj.isWar == true) {
-
-    } else {
-      document.getElementById('UserTip').innerText = `Dealer: ${gameObj.dealerScore} player: ${gameObj.playerScore}`;
-      flipNextDealerCard = true;
-      evalFlipDealerId = setInterval(evalFlipNextDealerCard, timerInterval)
-    }
+  if (gameObj.currentHandIsWar() == true) {
+    gameObj.declareWar();
+    return;
   }
+  
+  gameObj.allocateWinnerPoints();
+
+  document.getElementById('UserTip').innerText = `Dealer: ${gameObj.dealerScore} player: ${gameObj.playerScore}`;
+  flipNextDealerCard = true;
+  setTimeout(flipDealerCard, timerDelay); // this gives the animation (in allocateWinnerPoints) time to complete
+  
+
+
 }
 
-function evalFlipNextDealerCard(){
+function flipDealerCard(){
   
+  console.log('flipDealerCard');
+
   if (flipNextDealerCard == true) {
 
     flipNextDealerCard = false;
     gameObj.flipDealerCard();
     playerCardEnabled = true;
-    clearInterval(evalFlipDealerId); // stop this function
   }
 }
 
@@ -131,5 +131,5 @@ function wasteTime(ms) {
 }
 
 // window.addEventListener('transitionend', transitionEndCount);
-window.addEventListener('resize', formatPageForResize);
-window.addEventListener('load', formatPageForLoad);
+window.addEventListener('resize', browserResized);
+window.addEventListener('load', pageLoad);

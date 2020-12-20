@@ -1,6 +1,3 @@
-/* eslint-disable no-undef */
-/* eslint-disable require-jsdoc */
-/* eslint-disable no-unused-vars */
 
 const OWNER_DEALER = 'Dealer';
 const OWNER_PLAYER = 'Player';
@@ -22,7 +19,7 @@ const cardIds = ({'CardTopLeft': 'DealerLeft',
         this.fileName = fileName;  // when we already have qualified path - when (shuffling) for example 
       }
       this.cardOwner = null;
-      this.availForPlay = true;
+      this.cardFlipped = false; // (if card has been 'played') - (is it available to 'flip')
      }
    }
 

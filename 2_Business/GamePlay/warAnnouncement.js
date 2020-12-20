@@ -1,42 +1,41 @@
 
-let divBoxId = 'war-divBoxId';
+const divBoxId = 'war-divBoxId';
 
-class announceMessage {
+class warAnimation {
     constructor(message, fileName1, fileName2) {
         this.message = message;
         this.fileName1 = fileName1;
         this.fileName2 = fileName2;
-    }
+    };
 
-    makeAnnouncement(){
+    playWarAnimation(){
 
-        let divContainer;
-
-        divContainer = this.createElements(this.message, this.fileName1, this.fileName2);
+        let divContainer = this.createElements();
         this.playAnimation();
         setTimeout(this.cleanup, 2000, divContainer);
     }
 
-    createElements(msg, fileName1, fileName2){
+    createElements(){
 
+        const animeLoc = document.getElementById(cardIds.CardMidLeft).getBoundingClientRect();
         let divContainer = document.createElement('div');
         let divUserMsg = document.createElement('div');
         let imgBox1 = document.createElement('img');
         let imgBox2 = document.createElement('img');
     
-        imgBox1.setAttribute('src', fileName1);
-        imgBox2.setAttribute('src', fileName2);
+        imgBox1.setAttribute('src', this.fileName1);
+        imgBox2.setAttribute('src', this.fileName2);
 
         divContainer.setAttribute('id', divBoxId);
     
-        divUserMsg.innerText = msg;
+        divUserMsg.innerText = this.message;
         
         divContainer.className = 'warDivBox';
         divUserMsg.className = 'warTextCentered';    
         imgBox1.classList.add('warImgLeft');
         imgBox2.classList.add('warImgRight');
 
-        divContainer.style.left = 400 + 'px';
+        divContainer.style.left = (animeLoc.left - 4) + 'px';
     
         document.body.appendChild(divContainer);
         divContainer.appendChild(imgBox1);
@@ -58,9 +57,8 @@ class announceMessage {
     }
 
     cleanup(divContainer){
-        // document.body.appendChild(divContainer);
 
         document.body.removeChild(divContainer);
         divContainer = null;
     }
-}
+};

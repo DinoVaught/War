@@ -1,5 +1,9 @@
 let war = new warfare();
 let gameDeck;
+let cardDealerObj = new Card(0, '', '');
+let cardPlayerObj = new Card(0, '', '');
+
+
 class GamePlay {
   constructor(shuffledDeck) {
     gameDeck = shuffledDeck;
@@ -19,7 +23,6 @@ class GamePlay {
     }
 
   }
-
   flipPlayerCard() {
     try{
       this.flipCard(OWNER_PLAYER, cardIds.CardBottomRight, cardIds.CardMidRight);
@@ -28,14 +31,10 @@ class GamePlay {
       alert(`Error occurred in GamePlay.flipDealerCard '\r\n' ${err.message}`);
     }
   }
-
   flipCard(cardOwner, fromID, toID) {
-    const cardObj = gameDeck.find((cardIdx) => cardIdx.cardOwner == cardOwner && cardIdx.availForPlay == true);
+    const cardObj = gameDeck.find((cardIdx) => cardIdx.cardOwner == cardOwner && cardIdx.cardFlipped == false);
     
-    // this also changes this.gameDeck[x].availForPlay to = false
-    // this.animationRunning = true;
-
-    cardObj.availForPlay = false;
+    cardObj.cardFlipped = true; // this also sets gameDeck[x].cardFlipped = true
 
     const cardFlipping = document.createElement('IMG');
 
@@ -47,14 +46,14 @@ class GamePlay {
     cardFlipping.setAttribute('id', cardObj.suit);
     cardFlipping.setAttribute('data-resizeloc', toID);
     cardFlipping.setAttribute('data-faceValue', cardObj.faceValue);
-    cardFlipping.setAttribute('data-owner', cardOwner);
+    cardFlipping.setAttribute('data-cardowner', cardOwner);
     cardFlipping.setAttribute('data-filename', cardObj.fileName);
-    cardFlipping.setAttribute('data-inplay', 'yes');
+    cardFlipping.setAttribute('data-inbattle', 'yes'); // (part of the current hand) or (is currently face up in the middle of the board) or (the cards in the current battle)
 
     cardFlipping.style.position = 'absolute';
     cardFlipping.style.height = moveToRect.height + 'px';
-    cardFlipping.style.top = (moveFromRect.top - window.scrollY) + 'px'; // set (start) .top - the css transition needs a start location
-    cardFlipping.style.left = moveFromRect.left + 'px'; // set (start) .left - the css transition needs a start location
+    cardFlipping.style.top = (moveFromRect.top - window.scrollY) + 'px'; // the css transition needs a start location
+    cardFlipping.style.left = moveFromRect.left + 'px';                  // the css transition needs a start location
     document.getElementsByTagName('body')[0].appendChild(cardFlipping);
 
     cardFlipping.style.transition = 'all .5s'; // A span of time (or something) needs to elapse after applying the transition property
@@ -66,88 +65,92 @@ class GamePlay {
 /**
  * This method looks for a (full set) of cards that are face up on the game board.
  * In this context a (full set) of (in play cards) consists of 2 cards.
- * @param {Card} dealerCardObj Card object - dealer's card details.
- * @param {Card} playerCardObj Card object - player's card details.
+ * @param {Card} cardDealerObj Card object - dealer's card details.
+ * @param {Card} cardPlayerObj Card object - player's card details.
  * @returns {boolean} returns true of a (full set) of (in play) cards are on the board.
  */ 
-  fullSetCardsOnBoard(dealerCardObj, playerCardObj) {
+  loadCardObjectsFromDOM() {
 
     let count = 0;
     const imgs = document.getElementsByTagName('img');
 
     for (let i = 0; i < imgs.length; i++) {
-      if (imgs[i].dataset.inplay == 'yes') {
+      if (imgs[i].dataset.inbattle == 'yes') {
         
-        switch (imgs[i].dataset.owner) {
+        switch (imgs[i].dataset.cardowner) {
           case undefined:
             break;
           case OWNER_DEALER:
-            dealerCardObj.cardOwner = imgs[i].dataset.owner;
-            dealerCardObj.suit = imgs[i].id;
-            dealerCardObj.faceValue = imgs[i].dataset.facevalue;
-            dealerCardObj.fileName = imgs[i].dataset.filename;
+            cardDealerObj.cardOwner = imgs[i].dataset.cardowner;
+            cardDealerObj.suit = imgs[i].id;
+            cardDealerObj.faceValue = imgs[i].dataset.facevalue;
+            cardDealerObj.fileName = imgs[i].dataset.filename;
             count++;
             break;
           case OWNER_PLAYER:
-            playerCardObj.cardOwner = imgs[i].dataset.owner;
-            playerCardObj.suit = imgs[i].id;
-            playerCardObj.faceValue = imgs[i].dataset.facevalue;
-            playerCardObj.fileName = imgs[i].dataset.filename;
+            cardPlayerObj.cardOwner = imgs[i].dataset.cardowner;
+            cardPlayerObj.suit = imgs[i].id;
+            cardPlayerObj.faceValue = imgs[i].dataset.facevalue;
+            cardPlayerObj.fileName = imgs[i].dataset.filename;
             count++;
             break;
         }
-
       }
     }
     return (count == 2); // returns true or false
   }
-
   /**
    * This function evaluates the full set of (cards on the board), the cards that are currently (in play).
    * It assigns the winner of the current hand the point for this hand and gives winner the (prize card).
    * @param {Card} cardDealerObj Card object - assigned to the winner, moved to winner's discard pile and flagged as (out of play).
    * @param {Card} cardPlayerObj Card object - assigned to the winner, moved to winner's discard pile and flagged as (out of play).
    */ 
-  allocateWinnerPoints(cardDealerObj, cardPlayerObj) {
+  allocateWinnerPoints() {
+
+    // let cardDealerObj = new Card(0, '', '');
+    // let cardPlayerObj = new Card(0, '', '');
+
+    this.loadCardObjectsFromDOM()
 
     let elmntMvr = new elementMover();
-    // this.animationRunning = true;
+     
+    if (parseInt(cardDealerObj.faceValue) > parseInt(cardPlayerObj.faceValue)) {
+      // dealer wins
+      this.dealerScore += 1;
+      elmntMvr.moveElement(cardDealerObj.suit, cardIds.CardTopRight);
+      elmntMvr.moveElement(cardPlayerObj.suit, cardIds.CardTopRight);
+      document.getElementById(cardDealerObj.suit).setAttribute('data-resizeloc', cardIds.CardTopRight);
+      document.getElementById(cardPlayerObj.suit).setAttribute('data-resizeloc', cardIds.CardTopRight);
+      document.getElementById(cardDealerObj.suit).setAttribute('data-cardowner', OWNER_DEALER);
+      document.getElementById(cardPlayerObj.suit).setAttribute('data-cardowner', OWNER_DEALER);
 
-    if (0 == 0) {
-    // if (parseInt(cardDealerObj.faceValue) == parseInt(cardPlayerObj.faceValue)) {
-      // War!
-      this.isWar = true;
-      war = new warfare();
-      war.initializeWar(cardDealerObj.fileName, cardPlayerObj.fileName);
-
-      
     } else {
-      this.isWar = false;
-      
-      if (parseInt(cardDealerObj.faceValue) > parseInt(cardPlayerObj.faceValue)) {
-        // dealer wins
-        this.dealerScore += 1;
-        elmntMvr.moveElement(cardDealerObj.suit, cardIds.CardTopRight);
-        elmntMvr.moveElement(cardPlayerObj.suit, cardIds.CardTopRight);
-        document.getElementById(cardDealerObj.suit).setAttribute('data-resizeloc', cardIds.CardTopRight);
-        document.getElementById(cardPlayerObj.suit).setAttribute('data-resizeloc', cardIds.CardTopRight);
-        document.getElementById(cardDealerObj.suit).setAttribute('data-cardowner', OWNER_DEALER);
-        document.getElementById(cardPlayerObj.suit).setAttribute('data-cardowner', OWNER_DEALER);
-
-      } else {
-        // player wins
-        this.playerScore += 1;
-        elmntMvr.moveElement(cardDealerObj.suit, cardIds.CardBottomLeft);
-        elmntMvr.moveElement(cardPlayerObj.suit, cardIds.CardBottomLeft);
-        document.getElementById(cardDealerObj.suit).setAttribute('data-resizeloc', cardIds.CardBottomLeft);
-        document.getElementById(cardPlayerObj.suit).setAttribute('data-resizeloc', cardIds.CardBottomLeft);
-        document.getElementById(cardDealerObj.suit).setAttribute('data-cardowner', OWNER_PLAYER);
-        document.getElementById(cardPlayerObj.suit).setAttribute('data-cardowner', OWNER_PLAYER);
-      }
+      // player wins
+      this.playerScore += 1;
+      elmntMvr.moveElement(cardDealerObj.suit, cardIds.CardBottomLeft);
+      elmntMvr.moveElement(cardPlayerObj.suit, cardIds.CardBottomLeft);
+      document.getElementById(cardDealerObj.suit).setAttribute('data-resizeloc', cardIds.CardBottomLeft);
+      document.getElementById(cardPlayerObj.suit).setAttribute('data-resizeloc', cardIds.CardBottomLeft);
+      document.getElementById(cardDealerObj.suit).setAttribute('data-cardowner', OWNER_PLAYER);
+      document.getElementById(cardPlayerObj.suit).setAttribute('data-cardowner', OWNER_PLAYER);
     }
-    document.getElementById(cardDealerObj.suit).setAttribute('data-inplay', 'no');
-    document.getElementById(cardPlayerObj.suit).setAttribute('data-inplay', 'no');
+    // flag 'DOM elements': cards not (in battle)
+    document.getElementById(cardDealerObj.suit).setAttribute('data-inbattle', 'no');
+    document.getElementById(cardPlayerObj.suit).setAttribute('data-inbattle', 'no');
+
     this.handWinnerDeclared = true;
   }
-
+  currentHandIsWar(){
+    // let cardDealerObj = new Card(0, '', '');
+    // let cardPlayerObj = new Card(0, '', '');
+    this.loadCardObjectsFromDOM()
+    return (parseInt(cardDealerObj.faceValue) == parseInt(cardPlayerObj.faceValue));
+  }
+  declareWar(){
+    // let cardDealerObj = new Card(0, '', '');
+    // let cardPlayerObj = new Card(0, '', '');
+    this.loadCardObjectsFromDOM()
+    war = new warfare();
+    war.initializeWar(cardDealerObj.fileName, cardPlayerObj.fileName);
+  }
 }
