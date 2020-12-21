@@ -1,4 +1,4 @@
-let war = new warfare();
+// let war = new warfare();
 let gameDeck;
 let cardDealerObj = new Card(0, '', '');
 let cardPlayerObj = new Card(0, '', '');
@@ -23,7 +23,7 @@ class GamePlay {
     }
 
   }
-  flipPlayerCard() {
+  flipPlayerCard(warLeftOffset) {
     try{
       this.flipCard(OWNER_PLAYER, cardIds.CardBottomRight, cardIds.CardMidRight);
     }
@@ -31,7 +31,8 @@ class GamePlay {
       alert(`Error occurred in GamePlay.flipDealerCard '\r\n' ${err.message}`);
     }
   }
-  flipCard(cardOwner, fromID, toID) {
+  flipCard(cardOwner, fromID, toID, warLeftOffset) {
+
     const cardObj = gameDeck.find((cardIdx) => cardIdx.cardOwner == cardOwner && cardIdx.cardFlipped == false);
     
     cardObj.cardFlipped = true; // this also sets gameDeck[x].cardFlipped = true
@@ -40,6 +41,9 @@ class GamePlay {
 
     const moveToRect = document.getElementById(toID).getBoundingClientRect();
     const moveFromRect = document.getElementById(fromID).getBoundingClientRect();
+    if (warLeftOffset != undefined) {
+      moveToRect = moveToRect;
+    }
 
     cardFlipping.setAttribute('src', cardObj.fileName);
     cardFlipping.setAttribute('alt', cardObj.suit);
@@ -105,7 +109,7 @@ class GamePlay {
    * @param {Card} cardDealerObj Card object - assigned to the winner, moved to winner's discard pile and flagged as (out of play).
    * @param {Card} cardPlayerObj Card object - assigned to the winner, moved to winner's discard pile and flagged as (out of play).
    */ 
-  allocateWinnerPoints() {
+  determineWinner() {
 
     // let cardDealerObj = new Card(0, '', '');
     // let cardPlayerObj = new Card(0, '', '');
@@ -139,10 +143,11 @@ class GamePlay {
     document.getElementById(cardPlayerObj.suit).setAttribute('data-inbattle', 'no');
 
     this.handWinnerDeclared = true;
+    document.getElementById('UserTip').innerText = `Dealer: ${this.dealerScore} player: ${this.playerScore}`;
   }
   currentHandIsWar(){
-    // let cardDealerObj = new Card(0, '', '');
-    // let cardPlayerObj = new Card(0, '', '');
+
+    return true;
     this.loadCardObjectsFromDOM()
     return (parseInt(cardDealerObj.faceValue) == parseInt(cardPlayerObj.faceValue));
   }
@@ -150,7 +155,38 @@ class GamePlay {
     // let cardDealerObj = new Card(0, '', '');
     // let cardPlayerObj = new Card(0, '', '');
     this.loadCardObjectsFromDOM()
-    war = new warfare();
-    war.initializeWar(cardDealerObj.fileName, cardPlayerObj.fileName);
+    // war = new warfare();
+    // war.initializeWar(cardDealerObj.fileName, cardPlayerObj.fileName);
+    let warAnime = new warAnimation('WAR!', cardDealerObj.fileName, cardPlayerObj.fileName);
+    warAnime.playWarAnimation();        
+    warAnime = null;
   }
+  warPlayerOnClickCard(addCard){
+
+    const PLAYER_CLICK_CARD_ID = 'PLAYER_CLICK_CARD_ID_e9FNI9OyNz';
+    
+    if (addCard == true) {
+      const cardToAdd = document.createElement('IMG');
+      cardToAdd.setAttribute('src', '1_UI\\PNG\\red_back.png');
+      cardToAdd.setAttribute('alt', '1_UI\\PNG\\red_back.png');
+      cardToAdd.setAttribute('id', PLAYER_CLICK_CARD_ID);
+      cardToAdd.style.position = 'absolute';
+      cardToAdd.style.height = document.getElementById(cardIds.CardBottomRight).getBoundingClientRect().height + 'px';
+      cardToAdd.style.top = document.getElementById(cardIds.CardBottomRight).getBoundingClientRect().top + 'px';
+      cardToAdd.style.left = document.getElementById(cardIds.CardBottomRight).getBoundingClientRect().left + 'px';
+      document.body.appendChild(cardToAdd);
+      cardToAdd.addEventListener('click', CalCal);
+      cardToAdd.onclick = function() {'Main.CalCal()'};
+      
+
+    } else {
+      // remove card
+    }
+
+  }
+
+  CalCal() {
+    alert('blues');
+  }  
+
 }
