@@ -11,8 +11,18 @@ class elementMover {
     const moving = document.getElementById(idMoving);
     const moveToRect = document.getElementById(idMovingTo).getBoundingClientRect();
 
-    moving.style.left = `${moveToRect.left}px`;
-    moving.style.top = `${moveToRect.top}px`;
+
+    if (moving.dataset.loc_offset == undefined) {
+      moving.style.top = `${moveToRect.top}px`;
+      moving.style.left = `${moveToRect.left}px`;
+    } else {
+      moving.style.top = `${moveToRect.top}px`;
+      moving.style.left = parseFloat(moveToRect.left) + parseFloat(moving.dataset.loc_offset) + 'px';      
+      // moving.dataset.loc_offset pass - num to move left, + num to move right
+
+    }
+
+
 
 
   }

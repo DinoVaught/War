@@ -37,44 +37,29 @@ function dealCards() {
   document.getElementById('UserTip').innerText = 'Click your top card to play';
 
 }
-
 function browserResized() {
   const resize = new elementMover;
+  const targetElmnts = document.getElementsByTagName('img');
 
-  for (i = 0; i < shuffledCards.length; i += 1) {
-    if (document.getElementById(shuffledCards[i].suit) != null) {
-      const targetElement = document.getElementById(shuffledCards[i].suit);
-      switch (targetElement.dataset.resizeloc) {
-        case cardIds.CardMidLeft:
-          resize.moveElement(shuffledCards[i].suit, cardIds.CardMidLeft);
-          break;
-
-        case cardIds.CardMidRight:
-          resize.moveElement(shuffledCards[i].suit, cardIds.CardMidRight);
-          break;
-
-        case cardIds.CardTopRight:
-          resize.moveElement(shuffledCards[i].suit, cardIds.CardTopRight);
-          break;
-
-        case cardIds.CardBottomLeft:
-          resize.moveElement(shuffledCards[i].suit, cardIds.CardBottomLeft);
-          break;          
-
-        default:
-          break;
-      }
+  for (let i = 0; i < targetElmnts.length; i += 1) {
+    if (targetElmnts[i].dataset.resizeloc != undefined) {
+      resize.moveElement(targetElmnts[i].id, targetElmnts[i].dataset.resizeloc);
     }
   }
 }
 
-function flipPlayerCard() {
+function turnDealerCard(){
+  gameObj.flipDealerCard();
+  playerCardEnabled = true;
+}
+
+function turnPlayerCard() {
   
   if (playerCardEnabled == false) {return;}  // Player's must wait until dealer's turn is over
-  playerCardEnabled = false;  
   if (gameObj.handWinnerDeclared == false) {return;}
 
-  gameObj.handWinnerDeclared = false;
+
+  playerCardEnabled = false;
   gameObj.flipPlayerCard();
 
   // card transitions (in flipPlayerCard) are set to .5 seconds  cardFlipping.style.transition = 'all .5s';
@@ -85,10 +70,10 @@ function setBoardForNextHand(){
 
   if (gameObj.currentHandIsWar() == true) {
     gameObj.declareWar();
-    gameObj.warPlayerOnClickCard(true);
+    
     // setTimeout - for declareWar anime then . . .
     // Play the flipping of WAR Cards from dealer 
-
+    setTimeout(flipDealerCardWar, 2500); // this gives the animation (in allocateWinnerPoints) time to complete
     // 1) Set game environment for war.
     //       * Place another card (face down exclusively used for war)
     //         on top of bottom right card.
@@ -104,23 +89,24 @@ function setBoardForNextHand(){
   gameObj.determineWinner();
 
   // card transitions (in determineWinner) are set to .5 seconds
-  setTimeout(flipDealerCard, animeDelay); // this gives the animation (in allocateWinnerPoints) time to complete
+  setTimeout(turnDealerCard, animeDelay); // this gives the animation (in allocateWinnerPoints) time to complete
 }
 
-function flipDealerCard(){
-    gameObj.flipDealerCard();
-    playerCardEnabled = true;
-}
-
-function flipWarDealerCards(){
-  gameObj.flipDealerCard();
-  playerCardEnabled = true;
-}
+// function flipWarDealerCards(){
+//   gameObj.flipDealerCard();
+//   playerCardEnabled = true;
+// }
 
 function flipDealerCardWar(){
-  gameObj.flipDealerCard(5);
-  playerCardEnabled = true;
+  const delay = 750;
+  gameObj.flipDealerWarCards(1);
+  setTimeout(gameObj.flipDealerWarCards, (delay), 2);
+  setTimeout(gameObj.flipDealerWarCards, (delay * 2), 3); 
+  setTimeout(gameObj.onClickRedirectElement, (delay * 2.1), true);
+  // gameObj.flipDealerWarCards(v);
+  playerCardEnabled = false;
 }
+
 
 function CalCal() {
   alert('hello');
