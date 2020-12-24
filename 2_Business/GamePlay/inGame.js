@@ -2,6 +2,13 @@
 let gameDeck;
 let cardDealerObj = new Card(0, '', '');
 let cardPlayerObj = new Card(0, '', '');
+// let leftOffset = 0;
+
+var leftOffset = {
+  'amount': 0,
+  'numPxls': 15,
+}
+
 
 
 class GamePlay {
@@ -15,55 +22,7 @@ class GamePlay {
 
     // intervaleId = setInterval(this.evalCardsInPlay, 2000);
   }
-  flipDealerCard() {
-    // try{
-      this.flipCard(OWNER_DEALER, cardIds.CardTopLeft, cardIds.CardMidLeft);
-    // }
-    // catch(err) {
-    //   alert(`Error occurred in GamePlay.flipDealerCard '\r\n' ${err.message}`);
-    // }
 
-  }
-  flipPlayerCard() {
-    try{
-      this.flipCard(OWNER_PLAYER, cardIds.CardBottomRight, cardIds.CardMidRight);
-    }
-    catch(err) {
-      alert(`Error occurred in GamePlay.flipDealerCard '\r\n' ${err.message}`);
-    }
-  }
-
-  flipCard(cardOwner, fromID, toID) {
-
-    const cardDrawnFrmDeck = drawCardFromDeck(cardOwner);
-
-    const cardTurning = document.createElement('IMG');
-
-    const moveFromRect = document.getElementById(fromID).getBoundingClientRect();
-    const moveToRect = document.getElementById(toID).getBoundingClientRect();
-
-    cardTurning.setAttribute('src', cardDrawnFrmDeck.fileName);
-    cardTurning.setAttribute('alt', cardDrawnFrmDeck.suit);
-    cardTurning.setAttribute('id', cardDrawnFrmDeck.suit);
-    cardTurning.setAttribute('data-resizeloc', toID);
-    cardTurning.setAttribute('data-faceValue', cardDrawnFrmDeck.faceValue);
-    cardTurning.setAttribute('data-cardowner', cardOwner);
-    cardTurning.setAttribute('data-filename', cardDrawnFrmDeck.fileName);
-    cardTurning.setAttribute('data-inbattle', 'yes'); // (part of the current hand) or (is currently face up in the middle of the board) or (the cards in the current battle)
-
-    cardTurning.style.position = 'absolute';
-    cardTurning.style.height = moveToRect.height + 'px';
-    cardTurning.style.top = (moveFromRect.top - window.scrollY) + 'px'; // the css transition needs a start location
-    cardTurning.style.left = moveFromRect.left + 'px';                  // the css transition needs a start location
-    
-    document.body.appendChild(cardTurning);
-
-    cardTurning.style.transition = 'all .5s'; // A span of time (or something) needs to elapse after applying the transition property
-    cardTurning.offsetHeight; // Getting .offsetHeight forces the layout engine to stop, evaluate and calculate all properties that are set, and return a value.  We're not saving a return value but instead are calling .offsetHeight to force this transition to work.
-
-    cardTurning.style.top = (moveToRect.top + window.scrollY) + 'px';
-    cardTurning.style.left = moveToRect.left + 'px';
-  }
 /**
  * This method looks for a (full set) of cards that are face up on the game board.
  * In this context a (full set) of (in play cards) consists of 2 cards.
@@ -160,9 +119,17 @@ class GamePlay {
     warAnime = null;
   }
 
-  flipDealerWarCard(offsetFactor) {
+    flipDealerWarCard(offsetFactor) {
 
-    const leftOffset = (15 * offsetFactor) * -1;
+    // const leftOffset = (15 * offsetFactor) * -1;
+    // leftOffset = (15 * offsetFactor) * -1;
+
+    leftOffset.amount = (leftOffset.numPxls * offsetFactor) * -1; // make these negative nums, were moving cards to the left
+
+    // var leftOffsetObj = {
+    //   'leftOffsetAmount': 0,
+    //   'numPxls': 15,
+    // }
 
     const moveFromRect = document.getElementById(cardIds.CardTopLeft).getBoundingClientRect();
     const moveToRect = document.getElementById(cardIds.CardMidLeft).getBoundingClientRect();
@@ -174,14 +141,14 @@ class GamePlay {
     dealerCardFromDeck = drawCardFromDeck(OWNER_DEALER);
 
     dealerFaceBack.setAttribute('src', '1_UI\\PNG\\gray_back.png');
-    dealerFaceBack.setAttribute('id', 'WAR_CARD_FACE_DOWN');
+    dealerFaceBack.setAttribute('id', 'WAR_CARD_FACE_DOWN' + offsetFactor);
     dealerFaceBack.setAttribute('data-resizeloc', cardIds.CardMidLeft);
-    dealerFaceBack.setAttribute('data-loc_offset', leftOffset); // target these properties when removing these cards from DOM
+    dealerFaceBack.setAttribute('data-loc_offset', leftOffset.amount); // target these properties when removing these cards from DOM
 
     dealerFaceUp.setAttribute('src', dealerCardFromDeck.fileName);
     dealerFaceUp.setAttribute('id', dealerCardFromDeck.suit);
     dealerFaceUp.setAttribute('data-resizeloc', cardIds.CardMidLeft);
-    dealerFaceUp.setAttribute('data-loc_offset', leftOffset); // target these properties when removing these cards from DOM
+    dealerFaceUp.setAttribute('data-loc_offset', leftOffset.amount); // target these properties when removing these cards from DOM
     dealerFaceUp.setAttribute('data-cardowner', OWNER_DEALER); 
 
     dealerFaceBack.style.position = 'absolute';
@@ -203,12 +170,12 @@ class GamePlay {
     dealerFaceBack.style.transition = 'all .5s'; 
     dealerFaceBack.offsetHeight; // Getting .offsetHeight-layout engine reevaluate
     dealerFaceBack.style.top = (moveToRect.top + window.scrollY) + 'px';
-    dealerFaceBack.style.left = (moveToRect.left + leftOffset) + 'px'; // this is (+) so the resize logic will work correctly
+    dealerFaceBack.style.left = (moveToRect.left + leftOffset.amount) + 'px'; // this is (+) so the resize logic will work correctly
 
     dealerFaceUp.style.transition = 'all .5s'; 
     dealerFaceUp.offsetHeight; // Getting .offsetHeight-layout engine reevaluate
     dealerFaceUp.style.top = (moveToRect.top + window.scrollY) + 'px';
-    dealerFaceUp.style.left = (moveToRect.left + leftOffset) + 'px'; // this is (+) so the resize logic will work correctly
+    dealerFaceUp.style.left = (moveToRect.left + leftOffset.amount) + 'px'; // this is (+) so the resize logic will work correctly
 
 
   }
@@ -236,6 +203,66 @@ class GamePlay {
     } else {
       // remove card
     }
+  }
+}
+
+function flipCard(cardOwner, fromID, toID, offsetFactor) {
+
+  const cardDrawnFrmDeck = drawCardFromDeck(cardOwner);
+
+  const cardTurning = document.createElement('IMG');
+
+  const moveFromRect = document.getElementById(fromID).getBoundingClientRect();
+  const moveToRect = document.getElementById(toID).getBoundingClientRect();
+
+  cardTurning.setAttribute('src', cardDrawnFrmDeck.fileName);
+  cardTurning.setAttribute('alt', cardDrawnFrmDeck.suit);
+  cardTurning.setAttribute('id', cardDrawnFrmDeck.suit);
+  cardTurning.setAttribute('data-resizeloc', toID);
+  cardTurning.setAttribute('data-faceValue', cardDrawnFrmDeck.faceValue);
+  cardTurning.setAttribute('data-cardowner', cardOwner);
+  cardTurning.setAttribute('data-filename', cardDrawnFrmDeck.fileName);
+  cardTurning.setAttribute('data-inbattle', 'yes'); // (part of the current hand) or (is currently face up in the middle of the board) or (the cards in the current battle)
+
+  cardTurning.style.position = 'absolute';
+  cardTurning.style.height = moveToRect.height + 'px';
+  cardTurning.style.top = (moveFromRect.top - window.scrollY) + 'px'; // the css transition needs a start location
+  cardTurning.style.left = moveFromRect.left + 'px';                  // the css transition needs a start location
+  
+  document.body.appendChild(cardTurning);
+
+  cardTurning.style.transition = 'all .5s'; // A span of time (or something) needs to elapse after applying the transition property
+  cardTurning.offsetHeight; // Getting .offsetHeight forces the layout engine to stop, evaluate and calculate all properties that are set, and return a value.  We're not saving a return value but instead are calling .offsetHeight to force this transition to work.
+
+  cardTurning.style.top = (moveToRect.top + window.scrollY) + 'px';
+  if (offsetFactor == undefined) {
+    cardTurning.style.left = moveToRect.left + 'px';
+  } else {
+
+    leftOffset.amount = ((leftOffset.numPxls * offsetFactor) * -1); // negative nums move left
+    cardTurning.style.left = (moveToRect.left + leftOffset.amount) + 'px';
+    cardTurning.setAttribute('data-loc_offset', leftOffset.amount); // target these properties when removing these cards from DOM
+  }
+  
+}
+
+
+function flipDealerCard(offsetFactor) {
+  // try{
+    flipCard(OWNER_DEALER, cardIds.CardTopLeft, cardIds.CardMidLeft, offsetFactor);
+  // }
+  // catch(err) {
+  //   alert(`Error occurred in GamePlay.flipDealerCard '\r\n' ${err.message}`);
+  // }
+
+}
+
+function flipPlayerCard() {
+  try{
+    flipCard(OWNER_PLAYER, cardIds.CardBottomRight, cardIds.CardMidRight);
+  }
+  catch(err) {
+    alert(`Error occurred in GamePlay.flipDealerCard '\r\n' ${err.message}`);
   }
 }
 

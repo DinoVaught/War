@@ -32,7 +32,7 @@ function dealCards() {
   document.getElementById(cardIds.CardBottomRight).style.visibility = 'visible';
 
   gameObj = new GamePlay(shuffledCards);
-    gameObj.flipDealerCard();
+  flipDealerCard();
 
   document.getElementById('UserTip').innerText = 'Click your top card to play';
 
@@ -60,7 +60,7 @@ function turnPlayerCard() {
 
 
   playerCardEnabled = false;
-  gameObj.flipPlayerCard();
+  flipPlayerCard();
 
   // card transitions (in flipPlayerCard) are set to .5 seconds  cardFlipping.style.transition = 'all .5s';
   setTimeout(setBoardForNextHand, animeDelay); // this gives the animation (in flipPlayerCard) time to complete
@@ -99,11 +99,12 @@ function setBoardForNextHand(){
 
 function turnDealerCardsWar(){
   const delay = 750;
-  gameObj.flipDealerWarCard(1);
-  setTimeout(gameObj.flipDealerWarCard, (delay), 2);
-  setTimeout(gameObj.flipDealerWarCard, (delay * 2), 3); 
+ 
+  gameObj.flipDealerWarCard(1); // **
+  setTimeout(gameObj.flipDealerWarCard, (delay), 2); // **
+  setTimeout(gameObj.flipDealerWarCard, (delay * 2), 3); // **
   setTimeout(gameObj.onClickRedirectElement, (delay * 2.1), true);
-  setTimeout(gameObj.flipDealerCard, delay * 3);
+  setTimeout(flipDealerCard, (delay * 3), 4);
   playerCardEnabled = false;
 }
 

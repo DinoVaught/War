@@ -18,7 +18,7 @@ class elementMover {
     } else {
       moving.style.top = `${moveToRect.top}px`;
       moving.style.left = parseFloat(moveToRect.left) + parseFloat(moving.dataset.loc_offset) + 'px';      
-      // moving.dataset.loc_offset pass - num to move left, + num to move right
+      // moving.dataset.loc_offset pass -num to move left, +num to move right
 
     }
 
