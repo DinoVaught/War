@@ -12,15 +12,16 @@ class GamePlay {
     this.dealerScore = 0;
     this.playerScore = 0;
     this.isWar = false;
+
     // intervaleId = setInterval(this.evalCardsInPlay, 2000);
   }
   flipDealerCard() {
-    try{
+    // try{
       this.flipCard(OWNER_DEALER, cardIds.CardTopLeft, cardIds.CardMidLeft);
-    }
-    catch(err) {
-      alert(`Error occurred in GamePlay.flipDealerCard '\r\n' ${err.message}`);
-    }
+    // }
+    // catch(err) {
+    //   alert(`Error occurred in GamePlay.flipDealerCard '\r\n' ${err.message}`);
+    // }
 
   }
   flipPlayerCard() {
@@ -31,10 +32,10 @@ class GamePlay {
       alert(`Error occurred in GamePlay.flipDealerCard '\r\n' ${err.message}`);
     }
   }
+
   flipCard(cardOwner, fromID, toID) {
 
-    const cardDrawnFrmDeck = gameDeck.find((cardIdx) => cardIdx.cardOwner == cardOwner && cardIdx.cardFlipped == false);
-    cardDrawnFrmDeck.cardFlipped = true; // this also sets gameDeck[x].cardFlipped = true
+    const cardDrawnFrmDeck = drawCardFromDeck(cardOwner);
 
     const cardTurning = document.createElement('IMG');
 
@@ -159,34 +160,58 @@ class GamePlay {
     warAnime = null;
   }
 
-  flipDealerWarCards(offsetFactor) {
+  flipDealerWarCard(offsetFactor) {
 
     const leftOffset = (15 * offsetFactor) * -1;
 
     const moveFromRect = document.getElementById(cardIds.CardTopLeft).getBoundingClientRect();
     const moveToRect = document.getElementById(cardIds.CardMidLeft).getBoundingClientRect();
 
-    const dealerFaceDown = document.createElement('IMG');
-    dealerFaceDown.setAttribute('src', '1_UI\\PNG\\gray_back.png');
-    dealerFaceDown.setAttribute('id', 'WAR_CARD_FAFE_DOWN');
-    dealerFaceDown.setAttribute('data-resizeloc', cardIds.CardMidLeft);
-    dealerFaceDown.setAttribute('data-loc_offset', leftOffset); // target this properties when removing these cards from DOM
+    const dealerFaceBack = document.createElement('IMG');
+    const dealerFaceUp = document.createElement('IMG');
 
-    dealerFaceDown.style.position = 'absolute';
-    dealerFaceDown.style.height = moveToRect.height + 'px';
-    dealerFaceDown.style.top = (moveFromRect.top - window.scrollY) + 'px'; // the css transition needs a start location
-    dealerFaceDown.style.left = moveFromRect.left + 'px';                  // the css transition needs a start location    
+    let dealerCardFromDeck = new Card(0, '', '');
+    dealerCardFromDeck = drawCardFromDeck(OWNER_DEALER);
 
-    document.body.appendChild(dealerFaceDown);
+    dealerFaceBack.setAttribute('src', '1_UI\\PNG\\gray_back.png');
+    dealerFaceBack.setAttribute('id', 'WAR_CARD_FACE_DOWN');
+    dealerFaceBack.setAttribute('data-resizeloc', cardIds.CardMidLeft);
+    dealerFaceBack.setAttribute('data-loc_offset', leftOffset); // target these properties when removing these cards from DOM
 
-    dealerFaceDown.style.transition = 'all .5s'; 
-    dealerFaceDown.offsetHeight; // Getting .offsetHeight-layout engine reevaluate
+    dealerFaceUp.setAttribute('src', dealerCardFromDeck.fileName);
+    dealerFaceUp.setAttribute('id', dealerCardFromDeck.suit);
+    dealerFaceUp.setAttribute('data-resizeloc', cardIds.CardMidLeft);
+    dealerFaceUp.setAttribute('data-loc_offset', leftOffset); // target these properties when removing these cards from DOM
+    dealerFaceUp.setAttribute('data-cardowner', OWNER_DEALER); 
 
-    dealerFaceDown.style.top = (moveToRect.top + window.scrollY) + 'px';
-    dealerFaceDown.style.left = (moveToRect.left + leftOffset) + 'px'; // this is (+) so the resize logic will work correctly
+    dealerFaceBack.style.position = 'absolute';
+    dealerFaceBack.style.height = moveToRect.height + 'px';
+    dealerFaceBack.style.top = (moveFromRect.top - window.scrollY) + 'px'; // the css transition needs a start location
+    dealerFaceBack.style.left = moveFromRect.left + 'px'; 
+    // the css transition needs a start location
+
+    dealerFaceUp.style.position = 'absolute';
+    dealerFaceUp.style.height = moveToRect.height + 'px';
+    dealerFaceUp.style.top = (moveFromRect.top - window.scrollY) + 'px'; // the css transition needs a start location
+    dealerFaceUp.style.left = moveFromRect.left + 'px'; 
+    dealerFaceUp.style.visibility = 'hidden';
+
+
+    document.body.appendChild(dealerFaceBack);
+    document.body.appendChild(dealerFaceUp);
+
+    dealerFaceBack.style.transition = 'all .5s'; 
+    dealerFaceBack.offsetHeight; // Getting .offsetHeight-layout engine reevaluate
+    dealerFaceBack.style.top = (moveToRect.top + window.scrollY) + 'px';
+    dealerFaceBack.style.left = (moveToRect.left + leftOffset) + 'px'; // this is (+) so the resize logic will work correctly
+
+    dealerFaceUp.style.transition = 'all .5s'; 
+    dealerFaceUp.offsetHeight; // Getting .offsetHeight-layout engine reevaluate
+    dealerFaceUp.style.top = (moveToRect.top + window.scrollY) + 'px';
+    dealerFaceUp.style.left = (moveToRect.left + leftOffset) + 'px'; // this is (+) so the resize logic will work correctly
+
 
   }
-
 
   onClickRedirectElement(addCard){
 
@@ -212,4 +237,10 @@ class GamePlay {
       // remove card
     }
   }
+}
+
+function drawCardFromDeck (cardOwner) {
+  const retCard = gameDeck.find((cardIdx) => cardIdx.cardOwner == cardOwner && cardIdx.cardFlipped == false);
+  retCard.cardFlipped = true; // sets gameDeck[x].cardFlipped = true
+  return retCard;
 }

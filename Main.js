@@ -73,7 +73,7 @@ function setBoardForNextHand(){
     
     // setTimeout - for declareWar anime then . . .
     // Play the flipping of WAR Cards from dealer 
-    setTimeout(flipDealerCardWar, 2500); // this gives the animation (in allocateWinnerPoints) time to complete
+    setTimeout(turnDealerCardsWar, 2500); // this gives the animation (in allocateWinnerPoints) time to complete
     // 1) Set game environment for war.
     //       * Place another card (face down exclusively used for war)
     //         on top of bottom right card.
@@ -97,13 +97,13 @@ function setBoardForNextHand(){
 //   playerCardEnabled = true;
 // }
 
-function flipDealerCardWar(){
+function turnDealerCardsWar(){
   const delay = 750;
-  gameObj.flipDealerWarCards(1);
-  setTimeout(gameObj.flipDealerWarCards, (delay), 2);
-  setTimeout(gameObj.flipDealerWarCards, (delay * 2), 3); 
+  gameObj.flipDealerWarCard(1);
+  setTimeout(gameObj.flipDealerWarCard, (delay), 2);
+  setTimeout(gameObj.flipDealerWarCard, (delay * 2), 3); 
   setTimeout(gameObj.onClickRedirectElement, (delay * 2.1), true);
-  // gameObj.flipDealerWarCards(v);
+  setTimeout(gameObj.flipDealerCard, delay * 3);
   playerCardEnabled = false;
 }
 
