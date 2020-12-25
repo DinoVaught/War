@@ -2,12 +2,24 @@
 let gameDeck;
 let cardDealerObj = new Card(0, '', '');
 let cardPlayerObj = new Card(0, '', '');
-// let leftOffset = 0;
+
 
 var leftOffset = {
-  'amount': 0,
   'numPxls': 15,
-}
+  'playerCardTurnCount': 0,
+  'playerWarCardEnabled': true
+
+};
+leftOffset.DealerOffset = function (multiplier) {
+  return (leftOffset.numPxls * multiplier) * -1;
+};
+leftOffset.PlayerOffset = function (multiplier) {
+  return (leftOffset.numPxls * multiplier);
+};
+leftOffset.PlayerCardCount = function () {
+  leftOffset.playerCardTurnCount += 1;
+  return (leftOffset.playerCardTurnCount);
+};
 
 
 
@@ -111,50 +123,56 @@ class GamePlay {
     // let cardDealerObj = new Card(0, '', '');
     // let cardPlayerObj = new Card(0, '', '');
     this.loadCardObjectsFromDOM()
-    // war = new warfare();
-    // war.initializeWar(cardDealerObj.fileName, cardPlayerObj.fileName);
-    // let warAnime = new warAnimation('WAR!', cardDealerObj.fileName, cardPlayerObj.fileName);
+    
+    leftOffset.playerCardTurnCount = 0; 
     let warAnime = new warAnimation('WAR!', cardDealerObj.fileName, cardPlayerObj.fileName);
     warAnime.playWarAnimation();        
     warAnime = null;
   }
 
-    flipDealerWarCard(offsetFactor) {
+    flipWarCard(cardOwner, multiplier) {
 
-    // const leftOffset = (15 * offsetFactor) * -1;
-    // leftOffset = (15 * offsetFactor) * -1;
+      
+      let moveFromRect;
+      let moveToRect;
+      let resizeLocation;
+      let lOffset; 
+      if (cardOwner == OWNER_DEALER) {
+        moveFromRect = document.getElementById(cardIds.CardTopLeft).getBoundingClientRect();
+        moveToRect = document.getElementById(cardIds.CardMidLeft).getBoundingClientRect();
+        resizeLocation = cardIds.CardMidLeft;
+        lOffset = leftOffset.DealerOffset(multiplier);
+      } else {
+        moveFromRect = document.getElementById(cardIds.CardBottomRight).getBoundingClientRect();
+        moveToRect = document.getElementById(cardIds.CardMidRight).getBoundingClientRect();
+        resizeLocation = cardIds.CardMidRight;
+        lOffset = leftOffset.PlayerOffset(multiplier);
+      }
 
-    leftOffset.amount = (leftOffset.numPxls * offsetFactor) * -1; // make these negative nums, were moving cards to the left
+      
 
-    // var leftOffsetObj = {
-    //   'leftOffsetAmount': 0,
-    //   'numPxls': 15,
-    // }
-
-    const moveFromRect = document.getElementById(cardIds.CardTopLeft).getBoundingClientRect();
-    const moveToRect = document.getElementById(cardIds.CardMidLeft).getBoundingClientRect();
-
-    const dealerFaceBack = document.createElement('IMG');
+    const dealerFaceDown = document.createElement('IMG');
     const dealerFaceUp = document.createElement('IMG');
 
     let dealerCardFromDeck = new Card(0, '', '');
     dealerCardFromDeck = drawCardFromDeck(OWNER_DEALER);
 
-    dealerFaceBack.setAttribute('src', '1_UI\\PNG\\gray_back.png');
-    dealerFaceBack.setAttribute('id', 'WAR_CARD_FACE_DOWN' + offsetFactor);
-    dealerFaceBack.setAttribute('data-resizeloc', cardIds.CardMidLeft);
-    dealerFaceBack.setAttribute('data-loc_offset', leftOffset.amount); // target these properties when removing these cards from DOM
+
+    dealerFaceDown.setAttribute('src', '1_UI\\PNG\\gray_back.png');
+    dealerFaceDown.setAttribute('id', 'WAR_CARD_FACE_DOWN' + cardOwner + multiplier);
+    dealerFaceDown.setAttribute('data-resizeloc', resizeLocation);
+    dealerFaceDown.setAttribute('data-loc_offset', lOffset); // target these properties when removing these cards from DOM
 
     dealerFaceUp.setAttribute('src', dealerCardFromDeck.fileName);
     dealerFaceUp.setAttribute('id', dealerCardFromDeck.suit);
-    dealerFaceUp.setAttribute('data-resizeloc', cardIds.CardMidLeft);
-    dealerFaceUp.setAttribute('data-loc_offset', leftOffset.amount); // target these properties when removing these cards from DOM
-    dealerFaceUp.setAttribute('data-cardowner', OWNER_DEALER); 
+    dealerFaceUp.setAttribute('data-resizeloc', resizeLocation);
+    dealerFaceUp.setAttribute('data-loc_offset', lOffset); // target these properties when removing these cards from DOM
+    dealerFaceUp.setAttribute('data-cardowner', cardOwner); 
 
-    dealerFaceBack.style.position = 'absolute';
-    dealerFaceBack.style.height = moveToRect.height + 'px';
-    dealerFaceBack.style.top = (moveFromRect.top - window.scrollY) + 'px'; // the css transition needs a start location
-    dealerFaceBack.style.left = moveFromRect.left + 'px'; 
+    dealerFaceDown.style.position = 'absolute';
+    dealerFaceDown.style.height = moveToRect.height + 'px';
+    dealerFaceDown.style.top = (moveFromRect.top - window.scrollY) + 'px'; // the css transition needs a start location
+    dealerFaceDown.style.left = moveFromRect.left + 'px'; 
     // the css transition needs a start location
 
     dealerFaceUp.style.position = 'absolute';
@@ -164,18 +182,18 @@ class GamePlay {
     dealerFaceUp.style.visibility = 'hidden';
 
 
-    document.body.appendChild(dealerFaceBack);
+    document.body.appendChild(dealerFaceDown);
     document.body.appendChild(dealerFaceUp);
 
-    dealerFaceBack.style.transition = 'all .5s'; 
-    dealerFaceBack.offsetHeight; // Getting .offsetHeight-layout engine reevaluate
-    dealerFaceBack.style.top = (moveToRect.top + window.scrollY) + 'px';
-    dealerFaceBack.style.left = (moveToRect.left + leftOffset.amount) + 'px'; // this is (+) so the resize logic will work correctly
+    dealerFaceDown.style.transition = 'all .5s'; 
+    dealerFaceDown.offsetHeight; // Getting .offsetHeight-layout engine reevaluate
+    dealerFaceDown.style.top = (moveToRect.top + window.scrollY) + 'px';
+    dealerFaceDown.style.left = (moveToRect.left + lOffset) + 'px'; // this is (+) so the resize logic will work correctly
 
     dealerFaceUp.style.transition = 'all .5s'; 
     dealerFaceUp.offsetHeight; // Getting .offsetHeight-layout engine reevaluate
     dealerFaceUp.style.top = (moveToRect.top + window.scrollY) + 'px';
-    dealerFaceUp.style.left = (moveToRect.left + leftOffset.amount) + 'px'; // this is (+) so the resize logic will work correctly
+    dealerFaceUp.style.left = (moveToRect.left + lOffset) + 'px'; // this is (+) so the resize logic will work correctly
 
 
   }
@@ -206,7 +224,7 @@ class GamePlay {
   }
 }
 
-function flipCard(cardOwner, fromID, toID, offsetFactor) {
+function flipCard(cardOwner, fromID, toID, multiplier) {
 
   const cardDrawnFrmDeck = drawCardFromDeck(cardOwner);
 
@@ -222,7 +240,7 @@ function flipCard(cardOwner, fromID, toID, offsetFactor) {
   cardTurning.setAttribute('data-faceValue', cardDrawnFrmDeck.faceValue);
   cardTurning.setAttribute('data-cardowner', cardOwner);
   cardTurning.setAttribute('data-filename', cardDrawnFrmDeck.fileName);
-  cardTurning.setAttribute('data-inbattle', 'yes'); // (part of the current hand) or (is currently face up in the middle of the board) or (the cards in the current battle)
+  cardTurning.setAttribute('data-inbattle', 'yes'); // data-inbattle = ('yes' 2 card battle ), ('war' = war) ('no' not in battle or war)
 
   cardTurning.style.position = 'absolute';
   cardTurning.style.height = moveToRect.height + 'px';
@@ -235,13 +253,19 @@ function flipCard(cardOwner, fromID, toID, offsetFactor) {
   cardTurning.offsetHeight; // Getting .offsetHeight forces the layout engine to stop, evaluate and calculate all properties that are set, and return a value.  We're not saving a return value but instead are calling .offsetHeight to force this transition to work.
 
   cardTurning.style.top = (moveToRect.top + window.scrollY) + 'px';
-  if (offsetFactor == undefined) {
+  if (multiplier == undefined) {
     cardTurning.style.left = moveToRect.left + 'px';
   } else {
 
-    leftOffset.amount = ((leftOffset.numPxls * offsetFactor) * -1); // negative nums move left
-    cardTurning.style.left = (moveToRect.left + leftOffset.amount) + 'px';
-    cardTurning.setAttribute('data-loc_offset', leftOffset.amount); // target these properties when removing these cards from DOM
+    // leftOffset.amount = ((leftOffset.numPxls * multiplier) * -1); // negative nums move left
+    if (cardOwner == OWNER_DEALER) {
+      cardTurning.style.left = (moveToRect.left + leftOffset.DealerOffset(multiplier)) + 'px';
+      cardTurning.setAttribute('data-loc_offset', leftOffset.DealerOffset(multiplier)); 
+    } else {
+      cardTurning.style.left = (moveToRect.left + leftOffset.PlayerOffset(multiplier)) + 'px';
+      cardTurning.setAttribute('data-loc_offset', leftOffset.PlayerOffset(multiplier));
+    }
+
   }
   
 }

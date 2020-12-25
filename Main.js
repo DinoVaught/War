@@ -100,9 +100,9 @@ function setBoardForNextHand(){
 function turnDealerCardsWar(){
   const delay = 750;
  
-  gameObj.flipDealerWarCard(1); // **
-  setTimeout(gameObj.flipDealerWarCard, (delay), 2); // **
-  setTimeout(gameObj.flipDealerWarCard, (delay * 2), 3); // **
+  gameObj.flipWarCard(OWNER_DEALER, 1); // **
+  setTimeout(gameObj.flipWarCard, delay, OWNER_DEALER, 2); // **
+  setTimeout(gameObj.flipWarCard, (delay * 2), OWNER_DEALER, 3); // **
   setTimeout(gameObj.onClickRedirectElement, (delay * 2.1), true);
   setTimeout(flipDealerCard, (delay * 3), 4);
   playerCardEnabled = false;
@@ -110,7 +110,16 @@ function turnDealerCardsWar(){
 
 
 function CalCal() {
-  alert('hello');
+
+  if (leftOffset.playerWarCardEnabled == false) {return;}
+  
+  gameObj.flipWarCard(OWNER_PLAYER, leftOffset.PlayerCardCount());
+
+  if (leftOffset.playerCardTurnCount == 3) {
+    leftOffset.playerWarCardEnabled = false;
+  }
+
+
 }
 
 function wasteTime(ms) {
