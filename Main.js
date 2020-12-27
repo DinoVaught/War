@@ -6,10 +6,12 @@ shuffledCards = shuffleCards(cardsOOB);
 cardsOOB.length = 0;
 let gameObj; //  = new GamePlay(shuffledCards);
 const animeDelay = 1200;
+let warEventCount = 0;
 let playerCardEnabled = true;
 
 function pageLoad() {
 
+  
   document.getElementsByTagName('img')[0].id = cardIds.CardTopLeft;
   document.getElementsByTagName('img')[1].id = cardIds.CardTopRight;
   document.getElementsByTagName('img')[2].id = cardIds.CardMidLeft;
@@ -70,10 +72,12 @@ function setBoardForNextHand(){
 
   if (gameObj.currentHandIsWar() == true) {
     gameObj.declareWar();
-    
+    warEventCount = 0;
+    window.addEventListener('transitionend', trackWarAnimes);
     // setTimeout - for declareWar anime then . . .
     // Play the flipping of WAR Cards from dealer 
     setTimeout(turnDealerCardsWar, 2500); // this gives the animation (in allocateWinnerPoints) time to complete
+
     // 1) Set game environment for war.
     //       * Place another card (face down exclusively used for war)
     //         on top of bottom right card.
@@ -109,17 +113,30 @@ function turnDealerCardsWar(){
 }
 
 
-function CalCal() {
+function turnPlayerCardWar() {
 
   if (leftOffset.playerWarCardEnabled == false) {return;}
-  
-  gameObj.flipWarCard(OWNER_PLAYER, leftOffset.PlayerCardCount());
+   
 
-  if (leftOffset.playerCardTurnCount == 3) {
+  if (leftOffset.playerCardTurnCount < 3) {
+    gameObj.flipWarCard(OWNER_PLAYER, leftOffset.PlayerCardCount());
+  } else {
     leftOffset.playerWarCardEnabled = false;
+    flipPlayerCard(leftOffset.PlayerCardCount());
   }
+}
 
+function trackWarAnimes(){
+  warEventCount += 1;
+  // console.log(warEventCount);
+  if (warEventCount == 28) {
+    setTimeout(resolveWarWinner, 1000);
+    // alert('see who won 1!');
+  }
+}
 
+function resolveWarWinner() {
+  evalWar();
 }
 
 function wasteTime(ms) {

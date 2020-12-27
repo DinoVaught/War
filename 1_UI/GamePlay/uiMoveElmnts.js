@@ -12,7 +12,7 @@ class elementMover {
     const moveToRect = document.getElementById(idMovingTo).getBoundingClientRect();
 
 
-    if (moving.dataset.loc_offset == undefined) {
+    if (moving.dataset.loc_offset == undefined || moving.dataset.loc_offset == 'undefined') {
       moving.style.top = `${moveToRect.top}px`;
       moving.style.left = `${moveToRect.left}px`;
     } else {

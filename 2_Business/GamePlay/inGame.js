@@ -132,7 +132,6 @@ class GamePlay {
 
     flipWarCard(cardOwner, multiplier) {
 
-      
       let moveFromRect;
       let moveToRect;
       let resizeLocation;
@@ -149,51 +148,51 @@ class GamePlay {
         lOffset = leftOffset.PlayerOffset(multiplier);
       }
 
-      
-
-    const dealerFaceDown = document.createElement('IMG');
-    const dealerFaceUp = document.createElement('IMG');
+    const faceDown = document.createElement('IMG');
+    const faceUp = document.createElement('IMG');
 
     let dealerCardFromDeck = new Card(0, '', '');
     dealerCardFromDeck = drawCardFromDeck(OWNER_DEALER);
 
 
-    dealerFaceDown.setAttribute('src', '1_UI\\PNG\\gray_back.png');
-    dealerFaceDown.setAttribute('id', 'WAR_CARD_FACE_DOWN' + cardOwner + multiplier);
-    dealerFaceDown.setAttribute('data-resizeloc', resizeLocation);
-    dealerFaceDown.setAttribute('data-loc_offset', lOffset); // target these properties when removing these cards from DOM
+    faceDown.setAttribute('src', '1_UI\\PNG\\gray_back.png');
+    faceDown.setAttribute('id', 'WAR_CARD_FACE_DOWN' + cardOwner + multiplier);
+    faceDown.setAttribute('data-resizeloc', resizeLocation);
+    faceDown.setAttribute('data-loc_offset', lOffset); // target these properties when removing these cards from DOM
+    faceDown.setAttribute('data-inbattle', 'war');
 
-    dealerFaceUp.setAttribute('src', dealerCardFromDeck.fileName);
-    dealerFaceUp.setAttribute('id', dealerCardFromDeck.suit);
-    dealerFaceUp.setAttribute('data-resizeloc', resizeLocation);
-    dealerFaceUp.setAttribute('data-loc_offset', lOffset); // target these properties when removing these cards from DOM
-    dealerFaceUp.setAttribute('data-cardowner', cardOwner); 
+    faceUp.setAttribute('src', dealerCardFromDeck.fileName);
+    faceUp.setAttribute('id', dealerCardFromDeck.suit);
+    faceUp.setAttribute('data-resizeloc', resizeLocation);
+    faceUp.setAttribute('data-loc_offset', lOffset); // target these properties when removing these cards from DOM
+    faceUp.setAttribute('data-cardowner', cardOwner);
+    faceUp.setAttribute('data-inbattle', 'war');
 
-    dealerFaceDown.style.position = 'absolute';
-    dealerFaceDown.style.height = moveToRect.height + 'px';
-    dealerFaceDown.style.top = (moveFromRect.top - window.scrollY) + 'px'; // the css transition needs a start location
-    dealerFaceDown.style.left = moveFromRect.left + 'px'; 
-    // the css transition needs a start location
-
-    dealerFaceUp.style.position = 'absolute';
-    dealerFaceUp.style.height = moveToRect.height + 'px';
-    dealerFaceUp.style.top = (moveFromRect.top - window.scrollY) + 'px'; // the css transition needs a start location
-    dealerFaceUp.style.left = moveFromRect.left + 'px'; 
-    dealerFaceUp.style.visibility = 'hidden';
+    faceDown.style.position = 'absolute';
+    faceDown.style.height = moveToRect.height + 'px';
+    faceDown.style.top = (moveFromRect.top - window.scrollY) + 'px'; // the css transition needs a start location
+    faceDown.style.left = moveFromRect.left + 'px'; 
 
 
-    document.body.appendChild(dealerFaceDown);
-    document.body.appendChild(dealerFaceUp);
+    faceUp.style.position = 'absolute';
+    faceUp.style.height = moveToRect.height + 'px';
+    faceUp.style.top = (moveFromRect.top - window.scrollY) + 'px'; // the css transition needs a start location
+    faceUp.style.left = moveFromRect.left + 'px'; 
+    faceUp.style.visibility = 'hidden';
 
-    dealerFaceDown.style.transition = 'all .5s'; 
-    dealerFaceDown.offsetHeight; // Getting .offsetHeight-layout engine reevaluate
-    dealerFaceDown.style.top = (moveToRect.top + window.scrollY) + 'px';
-    dealerFaceDown.style.left = (moveToRect.left + lOffset) + 'px'; // this is (+) so the resize logic will work correctly
 
-    dealerFaceUp.style.transition = 'all .5s'; 
-    dealerFaceUp.offsetHeight; // Getting .offsetHeight-layout engine reevaluate
-    dealerFaceUp.style.top = (moveToRect.top + window.scrollY) + 'px';
-    dealerFaceUp.style.left = (moveToRect.left + lOffset) + 'px'; // this is (+) so the resize logic will work correctly
+    document.body.appendChild(faceDown);
+    document.body.appendChild(faceUp);
+
+    faceDown.style.transition = 'all .5s'; 
+    faceDown.offsetHeight; // Getting .offsetHeight-layout engine reevaluate
+    faceDown.style.top = (moveToRect.top + window.scrollY) + 'px';
+    faceDown.style.left = (moveToRect.left + lOffset) + 'px'; // this is (+) so the resize logic will work correctly
+
+    faceUp.style.transition = 'all .5s'; 
+    faceUp.offsetHeight; // Getting .offsetHeight-layout engine reevaluate
+    faceUp.style.top = (moveToRect.top + window.scrollY) + 'px';
+    faceUp.style.left = (moveToRect.left + lOffset) + 'px'; // this is (+) so the resize logic will work correctly
 
 
   }
@@ -213,8 +212,8 @@ class GamePlay {
       cardToAdd.style.top = document.getElementById(cardIds.CardBottomRight).getBoundingClientRect().top + 'px';
       cardToAdd.style.left = document.getElementById(cardIds.CardBottomRight).getBoundingClientRect().left + 'px';
       document.body.appendChild(cardToAdd);
-      cardToAdd.addEventListener('click', CalCal);
-      cardToAdd.onclick = function() {'Main.CalCal()'};
+      cardToAdd.addEventListener('click', turnPlayerCardWar);
+      cardToAdd.onclick = function() {'Main.turnPlayerCardWar()'};
       // document.getElementById(cardDealerObj.suit).setAttribute('data-resizeloc', cardIds.CardBottomLeft);
       
 
@@ -256,8 +255,9 @@ function flipCard(cardOwner, fromID, toID, multiplier) {
   if (multiplier == undefined) {
     cardTurning.style.left = moveToRect.left + 'px';
   } else {
-
-    // leftOffset.amount = ((leftOffset.numPxls * multiplier) * -1); // negative nums move left
+    // if we have a multiplier we know this is a (war card)
+    // war-flow only comes here when the 4th or last, faceup card is being turned
+    cardTurning.setAttribute('data-resolve_war_card', 'yes');
     if (cardOwner == OWNER_DEALER) {
       cardTurning.style.left = (moveToRect.left + leftOffset.DealerOffset(multiplier)) + 'px';
       cardTurning.setAttribute('data-loc_offset', leftOffset.DealerOffset(multiplier)); 
@@ -265,9 +265,7 @@ function flipCard(cardOwner, fromID, toID, multiplier) {
       cardTurning.style.left = (moveToRect.left + leftOffset.PlayerOffset(multiplier)) + 'px';
       cardTurning.setAttribute('data-loc_offset', leftOffset.PlayerOffset(multiplier));
     }
-
   }
-  
 }
 
 
@@ -281,14 +279,102 @@ function flipDealerCard(offsetFactor) {
 
 }
 
-function flipPlayerCard() {
+function flipPlayerCard(offsetFactor) {
   try{
-    flipCard(OWNER_PLAYER, cardIds.CardBottomRight, cardIds.CardMidRight);
+    flipCard(OWNER_PLAYER, cardIds.CardBottomRight, cardIds.CardMidRight, offsetFactor);
   }
   catch(err) {
     alert(`Error occurred in GamePlay.flipDealerCard '\r\n' ${err.message}`);
   }
 }
+
+function evalWar() {
+
+
+  let moveToRect;
+  let resizeLoc;
+  // let victor = warWinner();
+  switch (warWinner()) {
+
+    case 'WAR':
+      break;
+
+    case OWNER_DEALER:
+      moveToRect = document.getElementById(cardIds.CardTopRight).getBoundingClientRect();
+      resizeLoc = cardIds.CardTopRight;
+    break;
+    case OWNER_PLAYER:
+      moveToRect = document.getElementById(cardIds.CardBottomLeft).getBoundingClientRect();
+      resizeLoc = cardIds.CardBottomLeft;
+    break;
+
+  }
+
+  const warElmnts = document.getElementsByTagName('IMG');
+  
+
+  for (let i = 0; i < warElmnts.length; i += 1) {
+
+    if (warElmnts[i].dataset.inbattle == 'yes' || warElmnts[i].dataset.inbattle == 'war') {
+
+      anime({ 
+        targets:  warElmnts[i],
+        rotateY: '1turn',
+        duration: 500,
+      });
+      warElmnts[i].setAttribute('data-resizeloc', resizeLoc);
+      warElmnts[i].setAttribute('data-loc_offset', 'undefined');
+      warElmnts[i].setAttribute('data-inbattle', 'no');
+      warElmnts[i].style.visibility = 'visible';
+      warElmnts[i].style.top = moveToRect.top + 'px';
+      warElmnts[i].style.left = moveToRect.left + 'px';
+    }
+  }
+  setTimeout(removeWarFaceDown, (3000));
+
+}
+
+function removeWarFaceDown(){
+  const warElmnts = document.getElementsByTagName('IMG');
+  for (let i = 0; i < warElmnts.length; i += 1) {
+    if (warElmnts[i].id.indexOf('WAR_CARD_FACE_DOWN') > -1) {
+      document.body.removeChild(warElmnts[i]);
+    }
+  }
+}
+
+function warWinner() {
+
+  const imgs = document.getElementsByTagName('img');
+
+  for (let i = 0; i < imgs.length; i++) {
+    if (imgs[i].dataset.resolve_war_card == 'yes') {
+      
+      switch (imgs[i].dataset.cardowner) {
+        case undefined:
+          break;
+        case OWNER_DEALER:
+          cardDealerObj.cardOwner = imgs[i].dataset.cardowner;
+          cardDealerObj.suit = imgs[i].id;
+          cardDealerObj.faceValue = imgs[i].dataset.facevalue;
+          cardDealerObj.fileName = imgs[i].dataset.filename;
+          break;
+        case OWNER_PLAYER:
+          cardPlayerObj.cardOwner = imgs[i].dataset.cardowner;
+          cardPlayerObj.suit = imgs[i].id;
+          cardPlayerObj.faceValue = imgs[i].dataset.facevalue;
+          cardPlayerObj.fileName = imgs[i].dataset.filename;
+          break;
+      }
+    }
+  }
+  // return winner
+  if (cardDealerObj.faceValue == cardPlayerObj.faceValue) {
+    // war is another war 
+} 
+  return (parseInt(cardDealerObj.faceValue) > parseInt(cardPlayerObj.faceValue))?OWNER_DEALER:OWNER_PLAYER;
+}
+
 
 function drawCardFromDeck (cardOwner) {
   const retCard = gameDeck.find((cardIdx) => cardIdx.cardOwner == cardOwner && cardIdx.cardFlipped == false);
