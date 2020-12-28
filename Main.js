@@ -6,7 +6,6 @@ shuffledCards = shuffleCards(cardsOOB);
 cardsOOB.length = 0;
 let gameObj; //  = new GamePlay(shuffledCards);
 const animeDelay = 1200;
-let warEventCount = 0;
 let playerCardEnabled = true;
 
 function pageLoad() {
@@ -51,7 +50,7 @@ function browserResized() {
 }
 
 function turnDealerCard(){
-  gameObj.flipDealerCard();
+  flipDealerCard();
   playerCardEnabled = true;
 }
 
@@ -71,9 +70,7 @@ function turnPlayerCard() {
 function setBoardForNextHand(){
 
   if (gameObj.currentHandIsWar() == true) {
-    gameObj.declareWar();
-    warEventCount = 0;
-    window.addEventListener('transitionend', trackWarAnimes);
+    declareWar();
     // setTimeout - for declareWar anime then . . .
     // Play the flipping of WAR Cards from dealer 
     setTimeout(turnDealerCardsWar, 2500); // this gives the animation (in allocateWinnerPoints) time to complete
@@ -96,18 +93,13 @@ function setBoardForNextHand(){
   setTimeout(turnDealerCard, animeDelay); // this gives the animation (in allocateWinnerPoints) time to complete
 }
 
-// function flipWarDealerCards(){
-//   gameObj.flipDealerCard();
-//   playerCardEnabled = true;
-// }
-
 function turnDealerCardsWar(){
   const delay = 750;
  
   gameObj.flipWarCard(OWNER_DEALER, 1); // **
   setTimeout(gameObj.flipWarCard, delay, OWNER_DEALER, 2); // **
   setTimeout(gameObj.flipWarCard, (delay * 2), OWNER_DEALER, 3); // **
-  setTimeout(gameObj.onClickRedirectElement, (delay * 2.1), true);
+  setTimeout(onClickRedirectElement, (delay * 2.1), true);
   setTimeout(flipDealerCard, (delay * 3), 4);
   playerCardEnabled = false;
 }
@@ -118,7 +110,7 @@ function turnPlayerCardWar() {
   if (leftOffset.playerWarCardEnabled == false) {return;}
    
 
-  if (leftOffset.playerCardTurnCount < 3) {
+  if (leftOffset.playerWarCardCount < 3) {
     gameObj.flipWarCard(OWNER_PLAYER, leftOffset.PlayerCardCount());
   } else {
     leftOffset.playerWarCardEnabled = false;
@@ -126,18 +118,6 @@ function turnPlayerCardWar() {
   }
 }
 
-function trackWarAnimes(){
-  warEventCount += 1;
-  // console.log(warEventCount);
-  if (warEventCount == 28) {
-    setTimeout(resolveWarWinner, 1000);
-    // alert('see who won 1!');
-  }
-}
-
-function resolveWarWinner() {
-  evalWar();
-}
 
 function wasteTime(ms) {
   const start = new Date().getTime();

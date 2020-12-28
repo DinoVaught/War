@@ -3,10 +3,13 @@ let gameDeck;
 let cardDealerObj = new Card(0, '', '');
 let cardPlayerObj = new Card(0, '', '');
 
+let dealerScore = 0;
+let playerScore = 0;
 
 var leftOffset = {
   'numPxls': 15,
-  'playerCardTurnCount': 0,
+  'playerWarCardCount': 0,
+  'TotalCardCount': 0,
   'playerWarCardEnabled': true
 
 };
@@ -17,61 +20,20 @@ leftOffset.PlayerOffset = function (multiplier) {
   return (leftOffset.numPxls * multiplier);
 };
 leftOffset.PlayerCardCount = function () {
-  leftOffset.playerCardTurnCount += 1;
-  return (leftOffset.playerCardTurnCount);
+  leftOffset.playerWarCardCount += 1;
+  return (leftOffset.playerWarCardCount);
 };
-
 
 
 class GamePlay {
   constructor(shuffledDeck) {
     gameDeck = shuffledDeck;
-    // this.animationRunning = false;
     this.handWinnerDeclared = true;
-    this.dealerScore = 0;
-    this.playerScore = 0;
     this.isWar = false;
 
-    // intervaleId = setInterval(this.evalCardsInPlay, 2000);
   }
 
-/**
- * This method looks for a (full set) of cards that are face up on the game board.
- * In this context a (full set) of (in play cards) consists of 2 cards.
- * @param {Card} cardDealerObj Card object - dealer's card details.
- * @param {Card} cardPlayerObj Card object - player's card details.
- * @returns {boolean} returns true of a (full set) of (in play) cards are on the board.
- */ 
-  loadCardObjectsFromDOM() {
-
-    let count = 0;
-    const imgs = document.getElementsByTagName('img');
-
-    for (let i = 0; i < imgs.length; i++) {
-      if (imgs[i].dataset.inbattle == 'yes') {
-        
-        switch (imgs[i].dataset.cardowner) {
-          case undefined:
-            break;
-          case OWNER_DEALER:
-            cardDealerObj.cardOwner = imgs[i].dataset.cardowner;
-            cardDealerObj.suit = imgs[i].id;
-            cardDealerObj.faceValue = imgs[i].dataset.facevalue;
-            cardDealerObj.fileName = imgs[i].dataset.filename;
-            count++;
-            break;
-          case OWNER_PLAYER:
-            cardPlayerObj.cardOwner = imgs[i].dataset.cardowner;
-            cardPlayerObj.suit = imgs[i].id;
-            cardPlayerObj.faceValue = imgs[i].dataset.facevalue;
-            cardPlayerObj.fileName = imgs[i].dataset.filename;
-            count++;
-            break;
-        }
-      }
-    }
-    return (count == 2); // returns true or false
-  }
+  
   /**
    * This function evaluates the full set of (cards on the board), the cards that are currently (in play).
    * It assigns the winner of the current hand the point for this hand and gives winner the (prize card).
@@ -80,13 +42,13 @@ class GamePlay {
    */ 
   determineWinner() {
 
-    this.loadCardObjectsFromDOM()
+    loadCardObjectsFromDOM()
 
     let elmntMvr = new elementMover();
 
     if (parseInt(cardDealerObj.faceValue) > parseInt(cardPlayerObj.faceValue)) {
       // dealer wins
-      this.dealerScore += 1;
+      dealerScore += 1;
       elmntMvr.moveElement(cardDealerObj.suit, cardIds.CardTopRight);
       elmntMvr.moveElement(cardPlayerObj.suit, cardIds.CardTopRight);
       document.getElementById(cardDealerObj.suit).setAttribute('data-resizeloc', cardIds.CardTopRight);
@@ -97,7 +59,7 @@ class GamePlay {
 
     } else {
       // player wins
-      this.playerScore += 1;
+      playerScore += 1;
       elmntMvr.moveElement(cardDealerObj.suit, cardIds.CardBottomLeft);
       elmntMvr.moveElement(cardPlayerObj.suit, cardIds.CardBottomLeft);
       document.getElementById(cardDealerObj.suit).setAttribute('data-resizeloc', cardIds.CardBottomLeft);
@@ -109,25 +71,17 @@ class GamePlay {
     // flag 'DOM elements': cards not (in battle)
     document.getElementById(cardDealerObj.suit).setAttribute('data-inbattle', 'no');
     document.getElementById(cardPlayerObj.suit).setAttribute('data-inbattle', 'no');
+    // cardDealerObj.cardFlipped = false;
+    // cardPlayerObj.cardFlipped = false;
 
     this.handWinnerDeclared = true;
-    document.getElementById('UserTip').innerText = `Dealer: ${this.dealerScore} player: ${this.playerScore}`;
+    document.getElementById('UserTip').innerText = `Dealer: ${dealerScore} player: ${playerScore}`;
   }
   currentHandIsWar() {
 
-    return true;
-    this.loadCardObjectsFromDOM();
+    // return true;
+    loadCardObjectsFromDOM();
     return (parseInt(cardDealerObj.faceValue) == parseInt(cardPlayerObj.faceValue));
-  }
-  declareWar(){
-    // let cardDealerObj = new Card(0, '', '');
-    // let cardPlayerObj = new Card(0, '', '');
-    this.loadCardObjectsFromDOM()
-    
-    leftOffset.playerCardTurnCount = 0; 
-    let warAnime = new warAnimation('WAR!', cardDealerObj.fileName, cardPlayerObj.fileName);
-    warAnime.playWarAnimation();        
-    warAnime = null;
   }
 
     flipWarCard(cardOwner, multiplier) {
@@ -136,23 +90,23 @@ class GamePlay {
       let moveToRect;
       let resizeLocation;
       let lOffset; 
+      let dealerCardFromDeck = new Card(0, '', '');
       if (cardOwner == OWNER_DEALER) {
         moveFromRect = document.getElementById(cardIds.CardTopLeft).getBoundingClientRect();
         moveToRect = document.getElementById(cardIds.CardMidLeft).getBoundingClientRect();
         resizeLocation = cardIds.CardMidLeft;
         lOffset = leftOffset.DealerOffset(multiplier);
+        dealerCardFromDeck = drawCardFromDeck(OWNER_DEALER);
       } else {
         moveFromRect = document.getElementById(cardIds.CardBottomRight).getBoundingClientRect();
         moveToRect = document.getElementById(cardIds.CardMidRight).getBoundingClientRect();
         resizeLocation = cardIds.CardMidRight;
         lOffset = leftOffset.PlayerOffset(multiplier);
+        dealerCardFromDeck = drawCardFromDeck(OWNER_PLAYER);
       }
 
     const faceDown = document.createElement('IMG');
     const faceUp = document.createElement('IMG');
-
-    let dealerCardFromDeck = new Card(0, '', '');
-    dealerCardFromDeck = drawCardFromDeck(OWNER_DEALER);
 
 
     faceDown.setAttribute('src', '1_UI\\PNG\\gray_back.png');
@@ -193,35 +147,114 @@ class GamePlay {
     faceUp.offsetHeight; // Getting .offsetHeight-layout engine reevaluate
     faceUp.style.top = (moveToRect.top + window.scrollY) + 'px';
     faceUp.style.left = (moveToRect.left + lOffset) + 'px'; // this is (+) so the resize logic will work correctly
-
-
+    
   }
 
-  onClickRedirectElement(addCard){
+}
 
-    const PLAYER_CLICK_CARD_ID = 'PLAYER_CLICK_CARD_ID_e9FNI9OyNz';
+
+function onClickRedirectElement(addCard){
+
+  const PLAYER_CLICK_CARD_ID = 'PLAYER_CLICK_CARD_ID_e9FNI9OyNz';
+  
+  if (addCard == true) {
+    const cardToAdd = document.createElement('IMG');
+    cardToAdd.setAttribute('src', '1_UI\\PNG\\red_back.png');
+    cardToAdd.setAttribute('alt', '1_UI\\PNG\\red_back.png');
+    cardToAdd.setAttribute('id', PLAYER_CLICK_CARD_ID);
+    cardToAdd.setAttribute('data-resizeloc', cardIds.CardBottomRight);
+    cardToAdd.style.position = 'absolute';
+    cardToAdd.style.height = document.getElementById(cardIds.CardBottomRight).getBoundingClientRect().height + 'px';
+    cardToAdd.style.top = document.getElementById(cardIds.CardBottomRight).getBoundingClientRect().top + 'px';
+    cardToAdd.style.left = document.getElementById(cardIds.CardBottomRight).getBoundingClientRect().left + 'px';
+    document.body.appendChild(cardToAdd);
+    cardToAdd.addEventListener('click', turnPlayerCardWar);
+    cardToAdd.onclick = function() {'Main.turnPlayerCardWar()'};
+    // document.getElementById(cardDealerObj.suit).setAttribute('data-resizeloc', cardIds.CardBottomLeft);
     
-    if (addCard == true) {
-      const cardToAdd = document.createElement('IMG');
-      cardToAdd.setAttribute('src', '1_UI\\PNG\\red_back.png');
-      cardToAdd.setAttribute('alt', '1_UI\\PNG\\red_back.png');
-      cardToAdd.setAttribute('id', PLAYER_CLICK_CARD_ID);
-      cardToAdd.setAttribute('data-resizeloc', cardIds.CardBottomRight);
-      cardToAdd.style.position = 'absolute';
-      cardToAdd.style.height = document.getElementById(cardIds.CardBottomRight).getBoundingClientRect().height + 'px';
-      cardToAdd.style.top = document.getElementById(cardIds.CardBottomRight).getBoundingClientRect().top + 'px';
-      cardToAdd.style.left = document.getElementById(cardIds.CardBottomRight).getBoundingClientRect().left + 'px';
-      document.body.appendChild(cardToAdd);
-      cardToAdd.addEventListener('click', turnPlayerCardWar);
-      cardToAdd.onclick = function() {'Main.turnPlayerCardWar()'};
-      // document.getElementById(cardDealerObj.suit).setAttribute('data-resizeloc', cardIds.CardBottomLeft);
-      
 
-    } else {
-      // remove card
-    }
+  } else {
+    // remove card
+    document.body.removeChild(document.getElementById(PLAYER_CLICK_CARD_ID));
   }
 }
+
+
+/**
+ * This method looks for a (full set) of cards that are face up on the game board.
+ * In this context a (full set) of (in play cards) consists of 2 cards.
+ * @param {Card} cardDealerObj Card object - dealer's card details.
+ * @param {Card} cardPlayerObj Card object - player's card details.
+ * @returns {boolean} returns true of a (full set) of (in play) cards are on the board.
+ */ 
+function loadCardObjectsFromDOM(loadWarCards) {
+
+  let count = 0;
+  const imgs = document.getElementsByTagName('img');
+
+  for (let i = 0; i < imgs.length; i++) {
+    if (loadWarCards == undefined) {
+      if (imgs[i].dataset.inbattle == 'yes') {
+      
+        switch (imgs[i].dataset.cardowner) {
+          case undefined:
+            break;
+          case OWNER_DEALER:
+            cardDealerObj.cardOwner = imgs[i].dataset.cardowner;
+            cardDealerObj.suit = imgs[i].id;
+            cardDealerObj.faceValue = imgs[i].dataset.facevalue;
+            cardDealerObj.fileName = imgs[i].dataset.filename;
+            count++;
+            break;
+          case OWNER_PLAYER:
+            cardPlayerObj.cardOwner = imgs[i].dataset.cardowner;
+            cardPlayerObj.suit = imgs[i].id;
+            cardPlayerObj.faceValue = imgs[i].dataset.facevalue;
+            cardPlayerObj.fileName = imgs[i].dataset.filename;
+            count++;
+            break;
+        }
+      }
+    } else {
+      if (imgs[i].dataset.resolve_war_card == 'yes') {
+      
+        switch (imgs[i].dataset.cardowner) {
+          case undefined:
+            break;
+          case OWNER_DEALER:
+            cardDealerObj.cardOwner = imgs[i].dataset.cardowner;
+            cardDealerObj.suit = imgs[i].id;
+            cardDealerObj.faceValue = imgs[i].dataset.facevalue;
+            cardDealerObj.fileName = imgs[i].dataset.filename;
+            count++;
+            break;
+          case OWNER_PLAYER:
+            cardPlayerObj.cardOwner = imgs[i].dataset.cardowner;
+            cardPlayerObj.suit = imgs[i].id;
+            cardPlayerObj.faceValue = imgs[i].dataset.facevalue;
+            cardPlayerObj.fileName = imgs[i].dataset.filename;
+            count++;
+            break;
+        }
+      }
+    }
+
+  }
+  return (count == 2); // returns true or false
+}
+
+
+function declareWar(loadWarCards){
+  // let cardDealerObj = new Card(0, '', '');
+  // let cardPlayerObj = new Card(0, '', '');
+  loadCardObjectsFromDOM(loadWarCards);
+  
+  leftOffset.playerWarCardCount = 0;
+  let warAnime = new warAnimation('WAR!', cardDealerObj.fileName, cardPlayerObj.fileName);
+  warAnime.playWarAnimation();        
+  warAnime = null;
+}
+
 
 function flipCard(cardOwner, fromID, toID, multiplier) {
 
@@ -265,6 +298,11 @@ function flipCard(cardOwner, fromID, toID, multiplier) {
       cardTurning.style.left = (moveToRect.left + leftOffset.PlayerOffset(multiplier)) + 'px';
       cardTurning.setAttribute('data-loc_offset', leftOffset.PlayerOffset(multiplier));
     }
+    leftOffset.TotalCardCount += 1;
+    if (leftOffset.TotalCardCount == 2) {
+      leftOffset.TotalCardCount = 0;
+      setTimeout(evalWar, 1000);
+    }
   }
 }
 
@@ -293,30 +331,31 @@ function evalWar() {
 
   let moveToRect;
   let resizeLoc;
-  // let victor = warWinner();
-  switch (warWinner()) {
+  let victor = warWinner();
+  switch (victor) {
 
     case 'WAR':
-      break;
+      declareWar(true);
+      setTimeout(turnDealerCardsWar, 2500); 
+      leftOffset.playerWarCardEnabled = true;
+      onClickRedirectElement(false);
+      return;
 
     case OWNER_DEALER:
       moveToRect = document.getElementById(cardIds.CardTopRight).getBoundingClientRect();
       resizeLoc = cardIds.CardTopRight;
-    break;
+      break;
     case OWNER_PLAYER:
       moveToRect = document.getElementById(cardIds.CardBottomLeft).getBoundingClientRect();
       resizeLoc = cardIds.CardBottomLeft;
-    break;
-
+      break;
   }
-
   const warElmnts = document.getElementsByTagName('IMG');
   
-
   for (let i = 0; i < warElmnts.length; i += 1) {
-
+    
     if (warElmnts[i].dataset.inbattle == 'yes' || warElmnts[i].dataset.inbattle == 'war') {
-
+      
       anime({ 
         targets:  warElmnts[i],
         rotateY: '1turn',
@@ -328,10 +367,17 @@ function evalWar() {
       warElmnts[i].style.visibility = 'visible';
       warElmnts[i].style.top = moveToRect.top + 'px';
       warElmnts[i].style.left = moveToRect.left + 'px';
+      if (warElmnts[i].id.indexOf('WAR_CARD_FACE_DOWN') == -1) {
+        if (victor == OWNER_DEALER) {
+          dealerScore += 1;
+        } else {
+          playerScore += 1;
+        }
+      }
     }
   }
   setTimeout(removeWarFaceDown, (3000));
-
+  document.getElementById('UserTip').innerText = `Dealer: ${dealerScore} player: ${playerScore}`;
 }
 
 function removeWarFaceDown(){
@@ -370,11 +416,27 @@ function warWinner() {
   }
   // return winner
   if (cardDealerObj.faceValue == cardPlayerObj.faceValue) {
-    // war is another war 
-} 
-  return (parseInt(cardDealerObj.faceValue) > parseInt(cardPlayerObj.faceValue))?OWNER_DEALER:OWNER_PLAYER;
+    return 'WAR';
+  } 
+
+  if (parseInt(cardDealerObj.faceValue) > parseInt(cardPlayerObj.faceValue)) {
+
+    document.getElementById(cardDealerObj.suit).style.zIndex = 50000;
+    return OWNER_DEALER;
+  } else {
+    document.getElementById(cardPlayerObj.suit).style.zIndex = 50000;
+    return OWNER_PLAYER;
+  }
+
+
 }
 
+// function setZ_OrderWarWinCard(owner) {
+
+//   data-cardowner="Dealer"
+//   data-resolve_war_card="yes"
+
+// }
 
 function drawCardFromDeck (cardOwner) {
   const retCard = gameDeck.find((cardIdx) => cardIdx.cardOwner == cardOwner && cardIdx.cardFlipped == false);
