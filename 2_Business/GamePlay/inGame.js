@@ -71,15 +71,15 @@ class GamePlay {
     // flag 'DOM elements': cards not (in battle)
     document.getElementById(cardDealerObj.suit).setAttribute('data-inbattle', 'no');
     document.getElementById(cardPlayerObj.suit).setAttribute('data-inbattle', 'no');
-    // cardDealerObj.cardFlipped = false;
-    // cardPlayerObj.cardFlipped = false;
+    gameDeck.find((cardIdx) => cardIdx.suit == cardDealerObj.suit).inPlay = false;
+    gameDeck.find((cardIdx) => cardIdx.suit == cardPlayerObj.suit).inPlay = false;
 
     this.handWinnerDeclared = true;
     document.getElementById('UserTip').innerText = `Dealer: ${dealerScore} player: ${playerScore}`;
   }
   currentHandIsWar() {
 
-    // return true;
+    return false;
     loadCardObjectsFromDOM();
     return (parseInt(cardDealerObj.faceValue) == parseInt(cardPlayerObj.faceValue));
   }
@@ -439,7 +439,20 @@ function warWinner() {
 // }
 
 function drawCardFromDeck (cardOwner) {
-  const retCard = gameDeck.find((cardIdx) => cardIdx.cardOwner == cardOwner && cardIdx.cardFlipped == false);
-  retCard.cardFlipped = true; // sets gameDeck[x].cardFlipped = true
+
+  // const cardCount = gameDeck.filter((cardIdx) => cardIdx.cardOwner == cardOwner && 
+  //                                    cardIdx.played == false && 
+  //                                    cardIdx.inPlay == false);
+
+ if (gameDeck.filter((cardIdx) => cardIdx.cardOwner == cardOwner &&  cardIdx.played == false && cardIdx.inPlay == false).length == 0) {
+  //  console.log('shuffle cards for ' + cardOwner);
+   ShufflePartOfDeck(gameDeck, cardOwner);
+ }
+  
+  const retCard = gameDeck.find((cardIdx) => cardIdx.cardOwner == cardOwner && 
+                                             cardIdx.played == false && 
+                                             cardIdx.inPlay == false);
+  retCard.played = true; // sets gameDeck[x].played = true
+  retCard.inPlay = true;
   return retCard;
 }

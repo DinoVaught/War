@@ -10,7 +10,7 @@ const cardIds = ({'CardTopLeft': 'DealerLeft',
   'CardBottomRight': 'PlayerRight'});
 
   class Card {
-    constructor(faceValue, suit, fileName) {
+    constructor(faceValue, suit, fileName, shuffleIndex) {
       this.faceValue = faceValue;
       this.suit = suit;
       if (fileName.length <= 3) {
@@ -18,8 +18,10 @@ const cardIds = ({'CardTopLeft': 'DealerLeft',
       } else {
         this.fileName = fileName;  // when we already have qualified path - when (shuffling) for example 
       }
+      this.shuffleIndex = shuffleIndex;
       this.cardOwner = null;
-      this.cardFlipped = false; // (if card has been 'played') - (is it available to 'flip')
+      this.played = false; // (if card has been 'played') - (is it available to 'flip')
+      this.inPlay = false; // (true only while card is (in-play)) When reshuffling, do not shuffle cards that are (in-play)
      }
    }
 
@@ -100,38 +102,81 @@ function cardsOutOfBox() {
 
   return cards;
 }
-
-function shuffleCards(deckOOB) {
+/**
+ * Takes the cards passed to it and returns them (shuffled) or (mixed-up) if you please
+ * @param  {} cardsToShuffle Cards to shuffle
+ */
+function shuffleCards(cardsToShuffle, owner) {
   const shuffledCards = [];
   let shuffledIndexes = [];
 
-  shuffledIndexes = createShuffledIndex();
+  shuffledIndexes = getShuffledIndex(cardsToShuffle.length);
 
   for (i = 0; i < shuffledIndexes.length; i += 1) {
-    shuffledCards.push(new Card(deckOOB[shuffledIndexes[i]].faceValue,
-        deckOOB[shuffledIndexes[i]].suit,
-        deckOOB[shuffledIndexes[i]].fileName));
-    shuffledCards[i].cardOwner = getCardOwner(i);
+    shuffledCards.push(new Card(cardsToShuffle[shuffledIndexes[i]].faceValue,
+                                cardsToShuffle[shuffledIndexes[i]].suit,
+                                cardsToShuffle[shuffledIndexes[i]].fileName,
+                                cardsToShuffle[shuffledIndexes[i]].shuffleIndex));
+    if (owner == undefined) { 
+      shuffledCards[i].cardOwner = getCardOwner(i); 
+    } else {
+      shuffledCards[i].cardOwner = owner; 
+    }
+    
   }
-  // deckOOB.length = 0;
   return shuffledCards;
 }
-
-
-// eslint-disable-next-line require-jsdoc
-function createShuffledIndex() {
+/**
+ * creates a 1 dimension array (of shuffled integers). 
+ * @param  {} numIndexes this number determines the count or number of elements to put in to the return array 
+ */
+function getShuffledIndex(numIndexes) {
   const orderedIndex = [];
   const shuffledIndex = [];
 
-  // 52
-  for (let i = 0; i <= 51; i++) { // load array (0 - 51)
+  for (let i = 0; i <= (numIndexes -1); i++) { // load array (0 - 51)
     orderedIndex.push(i);
   }
 
-  for (let i = 0; i <= 51; i++) { // loop the 52 elements of the array (0 - 51)
+  for (let i = 0; i <= (numIndexes -1); i++) { // loop the 52 elements of the array (0 - 51)
     const elmnt = Math.floor(Math.random() * (orderedIndex.length));
     shuffledIndex.push(orderedIndex[elmnt]); // push unique values
     orderedIndex.splice(elmnt, 1);
   }
   return shuffledIndex;
+}
+/**
+ * Receives the full deck (cards for both players), and shuffles cards for one player or the other
+ * @param  {} mainDeck Full deck of (in-game) cards - 52 cards
+ * @param  {} owner The (dealer or player) who's cards need to be shuffled
+ */
+function ShufflePartOfDeck(mainDeck, owner) {
+  let partialDeck = [];
+  // let partialShuffled = [];
+  
+  for (let i = 0; i <= (mainDeck.length - 1); i++) {
+
+    if (mainDeck[i].cardOwner == owner && mainDeck[i].inPlay == false && mainDeck[i].played == true) {
+      partialDeck.push(new Card(mainDeck[i].faceValue, 
+                                mainDeck[i].suit, 
+                                mainDeck[i].fileName, i));
+      mainDeck[i].faceValue = null;
+      mainDeck[i].suit = null;
+      mainDeck[i].fileName  = null;
+
+      partialDeck[(partialDeck.length -1)].cardOwner = owner;
+    }
+  }
+  partialDeck = shuffleCards(partialDeck, owner);
+
+  for (let i = 0; i <= (partialDeck.length) -1; i++) {
+    mainDeck[partialDeck[i].shuffleIndex].faceValue = partialDeck[i].faceValue;
+    mainDeck[partialDeck[i].shuffleIndex].suit = partialDeck[i].suit;
+    mainDeck[partialDeck[i].shuffleIndex].fileName  = partialDeck[i].fileName;
+    // mainDeck[partialDeck[i].shuffleIndex].played  = partialDeck[i].played;
+    // mainDeck[partialDeck[i].shuffleIndex].inPlay  = partialDeck[i].inPlay;
+    // *** the resize location gets messed up in this re-shuffling 
+  }
+
+  console.log(`${mainDeck[i].cardOwner} ${mainDeck[i].suit} `);
 }

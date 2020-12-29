@@ -127,6 +127,19 @@ function wasteTime(ms) {
   }
 }
 
+function debug(){
+
+  for (i = 0; i < shuffledCards.length; i += 1) {
+    if (shuffledCards[i].cardOwner == OWNER_DEALER) {
+      if (i > 3 ) {
+        shuffledCards[i].played = true;
+        // shuffledCards[i].played = true;
+      }
+    }
+  }
+  
+}
+
 // window.addEventListener('transitionend', transitionEndCount);
 window.addEventListener('resize', browserResized);
 window.addEventListener('load', pageLoad);
