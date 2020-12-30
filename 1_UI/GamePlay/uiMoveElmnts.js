@@ -21,9 +21,5 @@ class elementMover {
       // moving.dataset.loc_offset pass -num to move left, +num to move right
 
     }
-
-
-
-
   }
 }

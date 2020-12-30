@@ -48,14 +48,53 @@ function browserResized() {
     }
   }
 }
+function turnDealerCardCallBack() {
+  turnDealerCard(true);
+}
+function turnDealerCard(skipValidation){
 
-function turnDealerCard(){
+  if (skipValidation != true) {
+    if (playerHasCards(OWNER_DEALER) == false) {
+      //  OWNER_DEALER is out of cards, OWNER_DEALER loses, game over 
+      console.log(`${OWNER_PLAYER} wins , game over`);
+    }
+    if (cardsNeedShuffle(OWNER_DEALER) == true) {
+      const shuffleObj = new shuffleAnimation(OWNER_DEALER);
+      shuffleObj.playShuffleAnime();    
+  
+      setTimeout(ShufflePartOfDeck, (shuffleObj.totalDelay + 400), gameDeck, OWNER_DEALER);
+      setTimeout(turnDealerCardCallBack, (shuffleObj.totalDelay + 700));
+      return;
+    }
+  } 
   flipDealerCard();
   playerCardEnabled = true;
+
 }
 
-function turnPlayerCard() {
+function turnPlayerCardCallBack() {
+  turnPlayerCard(true);
+}
+function turnPlayerCard(skipValidation) {
   
+  if (skipValidation != true) {
+    if (playerHasCards(OWNER_PLAYER) == false) {
+      //  OWNER_PLAYER is out of cards, OWNER_PLAYER loses, game over 
+      console.log(`${OWNER_DEALER} wins , game over`);
+    }
+    if (cardsNeedShuffle(OWNER_PLAYER) == true) {
+      const shuffleObj = new shuffleAnimation(OWNER_PLAYER);
+      shuffleObj.playShuffleAnime();    
+  
+      setTimeout(ShufflePartOfDeck, (shuffleObj.totalDelay + 400), gameDeck, OWNER_PLAYER);
+      setTimeout(turnPlayerCardCallBack, (shuffleObj.totalDelay + 700));
+      return;
+    }
+  } 
+
+
+
+
   if (playerCardEnabled == false) {return;}  // Player's must wait until dealer's turn is over
   if (gameObj.handWinnerDeclared == false) {return;}
 

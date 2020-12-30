@@ -152,11 +152,14 @@ function getShuffledIndex(numIndexes) {
  */
 function ShufflePartOfDeck(mainDeck, owner) {
   let partialDeck = [];
-  // let partialShuffled = [];
+  
+  console.log('ShufflePartOfDeck!!!');
   
   for (let i = 0; i <= (mainDeck.length - 1); i++) {
 
-    if (mainDeck[i].cardOwner == owner && mainDeck[i].inPlay == false && mainDeck[i].played == true) {
+    // this loop collects all the target cards (cards to be shuffled) from the game-deck
+    if (mainDeck[i].cardOwner == owner && mainDeck[i].inPlay == false && 
+                                          mainDeck[i].played == true) {
       partialDeck.push(new Card(mainDeck[i].faceValue, 
                                 mainDeck[i].suit, 
                                 mainDeck[i].fileName, i));
@@ -167,16 +170,19 @@ function ShufflePartOfDeck(mainDeck, owner) {
       partialDeck[(partialDeck.length -1)].cardOwner = owner;
     }
   }
-  partialDeck = shuffleCards(partialDeck, owner);
 
+  partialDeck = shuffleCards(partialDeck, owner); // shuffle target cards
+
+  // this loop inserts the shuffled cards back in to the game-deck
   for (let i = 0; i <= (partialDeck.length) -1; i++) {
     mainDeck[partialDeck[i].shuffleIndex].faceValue = partialDeck[i].faceValue;
     mainDeck[partialDeck[i].shuffleIndex].suit = partialDeck[i].suit;
     mainDeck[partialDeck[i].shuffleIndex].fileName  = partialDeck[i].fileName;
-    // mainDeck[partialDeck[i].shuffleIndex].played  = partialDeck[i].played;
-    // mainDeck[partialDeck[i].shuffleIndex].inPlay  = partialDeck[i].inPlay;
-    // *** the resize location gets messed up in this re-shuffling 
+    mainDeck[partialDeck[i].shuffleIndex].played  = false;
+    mainDeck[partialDeck[i].shuffleIndex].inPlay  = false;
+    if (document.getElementById(partialDeck[i].suit)  != null) { // is card is in DOM
+      document.body.removeChild(document.getElementById(partialDeck[i].suit));
+    }
   }
-
   console.log(`${mainDeck[i].cardOwner} ${mainDeck[i].suit} `);
 }

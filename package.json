@@ -4,7 +4,9 @@
   "description": "Description",
   "main": "Main.js",
   "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^7.16.0"
+  },
   "scripts": {
     "lint": "eslint ./",
     "test": "hello"

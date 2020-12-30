@@ -258,6 +258,7 @@ function declareWar(loadWarCards){
 
 function flipCard(cardOwner, fromID, toID, multiplier) {
 
+  
   const cardDrawnFrmDeck = drawCardFromDeck(cardOwner);
 
   const cardTurning = document.createElement('IMG');
@@ -306,24 +307,49 @@ function flipCard(cardOwner, fromID, toID, multiplier) {
   }
 }
 
-
+// function flipDealerCardCallBack(offsetFactor) {
+//   flipDealerCard(offsetFactor, true);
+// }
 function flipDealerCard(offsetFactor) {
-  // try{
-    flipCard(OWNER_DEALER, cardIds.CardTopLeft, cardIds.CardMidLeft, offsetFactor);
-  // }
-  // catch(err) {
-  //   alert(`Error occurred in GamePlay.flipDealerCard '\r\n' ${err.message}`);
-  // }
 
+  // if (skipValidation != true) {
+  //     if (playerHasCards(OWNER_DEALER) == false) {
+  //       //  OWNER_DEALER is out of cards, OWNER_DEALER loses, game over 
+  //       console.log(`${OWNER_PLAYER} wins , game over`);
+  //     }
+  //     if (cardsNeedShuffle(OWNER_DEALER) == true) {
+  //       const shuffleObj = new shuffleAnimation(OWNER_DEALER);
+  //       shuffleObj.playShuffleAnime();    
+    
+  //       setTimeout(ShufflePartOfDeck, (shuffleObj.totalDelay + 400), gameDeck, OWNER_DEALER);
+  //       setTimeout(flipDealerCardCallBack, (shuffleObj.totalDelay + 700), offsetFactor);
+  //       return;
+  //     }
+  //   }
+    flipCard(OWNER_DEALER, cardIds.CardTopLeft, cardIds.CardMidLeft, offsetFactor);
 }
 
+// function flipDealerCardCallBack(offsetFactor) {
+//   flipPlayerCard(offsetFactor, true);
+// }
+
 function flipPlayerCard(offsetFactor) {
-  try{
+  // if (skipValidation != true) {
+  //   if (playerHasCards(OWNER_PLAYER) == false) {
+  //     //  OWNER_PLAYER is out of cards, OWNER_DEALER loses, game over 
+  //     console.log(`${OWNER_DEALER} wins , game over`);
+  //   }
+  //   if (cardsNeedShuffle(OWNER_PLAYER) == true) {
+  //     const shuffleObj = new shuffleAnimation(OWNER_PLAYER);
+  //     shuffleObj.playShuffleAnime();    
+  
+  //     setTimeout(ShufflePartOfDeck, (shuffleObj.totalDelay + 400), gameDeck, OWNER_PLAYER);
+  //     setTimeout(flipDealerCardCallBack, (shuffleObj.totalDelay + 700), offsetFactor);
+  //     return;
+  //   }
+  // }
     flipCard(OWNER_PLAYER, cardIds.CardBottomRight, cardIds.CardMidRight, offsetFactor);
-  }
-  catch(err) {
-    alert(`Error occurred in GamePlay.flipDealerCard '\r\n' ${err.message}`);
-  }
+
 }
 
 function evalWar() {
@@ -431,24 +457,20 @@ function warWinner() {
 
 }
 
-// function setZ_OrderWarWinCard(owner) {
+function playerHasCards(cardOwner) {
+  return (gameDeck.filter((cardIdx) => cardIdx.cardOwner == cardOwner).length > 0);
+}
 
-//   data-cardowner="Dealer"
-//   data-resolve_war_card="yes"
+function cardsNeedShuffle(cardOwner) {
+  return (gameDeck.filter((cardIdx) => cardIdx.cardOwner == cardOwner && 
+                                       cardIdx.played == false &&
+                                       cardIdx.inPlay == false).length == 0);
+}
 
-// }
 
-function drawCardFromDeck (cardOwner) {
+function drawCardFromDeck (cardOwner, calledFromAnime) {
 
-  // const cardCount = gameDeck.filter((cardIdx) => cardIdx.cardOwner == cardOwner && 
-  //                                    cardIdx.played == false && 
-  //                                    cardIdx.inPlay == false);
 
- if (gameDeck.filter((cardIdx) => cardIdx.cardOwner == cardOwner &&  cardIdx.played == false && cardIdx.inPlay == false).length == 0) {
-  //  console.log('shuffle cards for ' + cardOwner);
-   ShufflePartOfDeck(gameDeck, cardOwner);
- }
-  
   const retCard = gameDeck.find((cardIdx) => cardIdx.cardOwner == cardOwner && 
                                              cardIdx.played == false && 
                                              cardIdx.inPlay == false);
