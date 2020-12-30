@@ -93,8 +93,6 @@ function turnPlayerCard(skipValidation) {
   } 
 
 
-
-
   if (playerCardEnabled == false) {return;}  // Player's must wait until dealer's turn is over
   if (gameObj.handWinnerDeclared == false) {return;}
 
